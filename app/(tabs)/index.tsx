@@ -1,75 +1,221 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { router } from 'expo-router';
+
+// Dados mockados dos animais
+const animals = [
+  {
+    id: '1',
+    name: 'Luna',
+    species: 'Cão',
+    breed: 'Labrador',
+    age: '2 anos',
+    size: 'Grande',
+    gender: 'Fêmea',
+    image: '🐕',
+    description: 'Luna é uma cadela muito carinhosa e brincalhona.',
+    location: 'São Paulo, SP',
+  },
+  {
+    id: '2',
+    name: 'Mimi',
+    species: 'Gato',
+    breed: 'SRD',
+    age: '1 ano',
+    size: 'Pequeno',
+    gender: 'Fêmea',
+    image: '🐱',
+    description: 'Mimi é uma gatinha dócil e independente.',
+    location: 'São Paulo, SP',
+  },
+  {
+    id: '3',
+    name: 'Thor',
+    species: 'Cão',
+    breed: 'Pastor Alemão',
+    age: '3 anos',
+    size: 'Grande',
+    gender: 'Macho',
+    image: '🐕‍🦺',
+    description: 'Thor é um cão protetor e leal.',
+    location: 'São Paulo, SP',
+  },
+  {
+    id: '4',
+    name: 'Bella',
+    species: 'Cão',
+    breed: 'Golden Retriever',
+    age: '4 anos',
+    size: 'Grande',
+    gender: 'Fêmea',
+    image: '🦮',
+    description: 'Bella é muito amigável e adora crianças.',
+    location: 'São Paulo, SP',
+  },
+];
 
 export default function HomeScreen() {
+  const handleAnimalPress = (animalId: string) => {
+    router.push(`/animal/${animalId}` as any);
+  };
+
+  const renderAnimalCard = ({ item }: { item: typeof animals[0] }) => (
+    <TouchableOpacity 
+      style={styles.animalCard} 
+      onPress={() => handleAnimalPress(item.id)}
+    >
+      <ThemedView style={styles.animalImage}>
+        <ThemedText style={styles.animalEmoji}>{item.image}</ThemedText>
+      </ThemedView>
+      
+      <ThemedView style={styles.animalInfo}>
+        <ThemedText type="defaultSemiBold" style={styles.animalName}>{item.name}</ThemedText>
+        <ThemedText style={styles.animalDetails}>{item.breed} • {item.age}</ThemedText>
+        <ThemedText style={styles.animalDetails}>{item.size} • {item.gender}</ThemedText>
+        <ThemedText style={styles.animalLocation}>📍 {item.location}</ThemedText>
+        <ThemedText style={styles.animalDescription} numberOfLines={2}>
+          {item.description}
+        </ThemedText>
+      </ThemedView>
+      
+      <ThemedView style={styles.favoriteButton}>
+        <ThemedText style={styles.favoriteIcon}>♡</ThemedText>
+      </ThemedView>
+    </TouchableOpacity>
+  );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Animais para Adoção</ThemedText>
+        <ThemedText type="subtitle">Encontre seu novo melhor amigo</ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
+      
+      <ThemedView style={styles.filterContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
+          <TouchableOpacity style={[styles.filterButton, styles.filterButtonActive]}>
+            <ThemedText style={styles.filterTextActive}>Todos</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <ThemedText style={styles.filterText}>🐕 Cães</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <ThemedText style={styles.filterText}>🐱 Gatos</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <ThemedText style={styles.filterText}>Pequeno</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterButton}>
+            <ThemedText style={styles.filterText}>Grande</ThemedText>
+          </TouchableOpacity>
+        </ScrollView>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+
+      <FlatList
+        data={animals}
+        renderItem={renderAnimalCard}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.animalsList}
+        showsVerticalScrollIndicator={false}
+      />
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  header: {
+    padding: 20,
+    paddingTop: 60,
+  },
+  filterContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  filterScroll: {
+    flexGrow: 0,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    marginRight: 8,
+  },
+  filterButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  filterText: {
+    fontSize: 14,
+  },
+  filterTextActive: {
+    fontSize: 14,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  animalsList: {
+    padding: 20,
+    gap: 16,
+  },
+  animalCard: {
     flexDirection: 'row',
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  animalImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  animalEmoji: {
+    fontSize: 32,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  animalInfo: {
+    flex: 1,
+    marginLeft: 16,
+    gap: 4,
+  },
+  animalName: {
+    fontSize: 18,
+  },
+  animalDetails: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  animalLocation: {
+    fontSize: 12,
+    opacity: 0.6,
+  },
+  animalDescription: {
+    fontSize: 14,
+    marginTop: 4,
+    opacity: 0.8,
+  },
+  favoriteButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+  },
+  favoriteIcon: {
+    fontSize: 18,
+    color: '#FF3B30',
   },
 });
