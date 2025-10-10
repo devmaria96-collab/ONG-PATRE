@@ -1,8 +1,31 @@
-import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function ProfileScreen() {
+  const handlePersonalData = () => {
+    Alert.alert('Dados Pessoais', 'Funcionalidade em desenvolvimento');
+  };
+
+  const handleContact = () => {
+    Alert.alert('Contato', 'Funcionalidade em desenvolvimento');
+  };
+
+  const handleChangePassword = () => {
+    Alert.alert('Alterar Senha', 'Funcionalidade em desenvolvimento');
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Sair da Conta',
+      'Tem certeza que deseja sair?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Sair', style: 'destructive', onPress: () => console.log('Logout') }
+      ]
+    );
+  };
+
   const user = {
     name: 'Maria Silva',
     email: 'maria.silva@email.com',
@@ -25,95 +48,23 @@ export default function ProfileScreen() {
         <ThemedView style={styles.section}>
           <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Minha Conta</ThemedText>
           
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={handlePersonalData}>
             <ThemedText>👤 Dados Pessoais</ThemedText>
             <ThemedText style={styles.arrow}>›</ThemedText>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleContact}>
             <ThemedText>📱 Contato</ThemedText>
             <ThemedText style={styles.arrow}>›</ThemedText>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleChangePassword}>
             <ThemedText>🔒 Alterar Senha</ThemedText>
             <ThemedText style={styles.arrow}>›</ThemedText>
           </TouchableOpacity>
         </ThemedView>
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Minhas Atividades</ThemedText>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedView style={styles.menuItemContent}>
-              <ThemedText>📋 Meus Pedidos de Adoção</ThemedText>
-              <ThemedView style={styles.badge}>
-                <ThemedText style={styles.badgeText}>{user.adoptionRequests}</ThemedText>
-              </ThemedView>
-            </ThemedView>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedView style={styles.menuItemContent}>
-              <ThemedText>❤️ Animais Favoritos</ThemedText>
-              <ThemedView style={styles.badge}>
-                <ThemedText style={styles.badgeText}>{user.favorites}</ThemedText>
-              </ThemedView>
-            </ThemedView>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🎫 Eventos Inscritos</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>💝 Histórico de Doações</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Configurações</ThemedText>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🔔 Notificações</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🌙 Tema Escuro</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🌍 Idioma</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Suporte</ThemedText>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>❓ Central de Ajuda</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>📞 Fale Conosco</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>⭐ Avaliar App</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <ThemedText style={styles.logoutText}>Sair da Conta</ThemedText>
         </TouchableOpacity>
       </ThemedView>

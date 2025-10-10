@@ -1,7 +1,9 @@
-import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useState } from 'react';
 
 // Dados mockados dos animais (mesmo do index)
 const animals = [
@@ -9,18 +11,18 @@ const animals = [
     id: '1',
     name: 'Luna',
     species: 'Cão',
-    breed: 'Labrador',
-    age: '2 anos',
-    size: 'Grande',
+    breed: 'SRD',
+    age: '1 anos',
+    size: 'Médio',
     gender: 'Fêmea',
-    image: '🐕',
+    image: require('@/assets/images/luna.jpg'),
     description: 'Luna é uma cadela muito carinhosa e brincalhona. Ela adora brincar com crianças e outros cães. Foi resgatada quando ainda era filhote e agora está pronta para encontrar uma família amorosa.',
     location: 'São Paulo, SP',
     health: 'Vacinada, castrada, vermifugada',
     personality: ['Carinhosa', 'Brincalhona', 'Sociável', 'Obediente'],
     story: 'Luna foi encontrada abandonada em uma caixa de papelão quando tinha apenas 2 meses. Desde então, tem sido cuidada com muito amor pela nossa equipe.',
     weight: '25kg',
-    photos: ['🐕', '🐕‍🦺', '🦮'],
+    photos: [require('@/assets/images/luna.jpg')],
   },
   {
     id: '2',
@@ -30,54 +32,55 @@ const animals = [
     age: '1 ano',
     size: 'Pequeno',
     gender: 'Fêmea',
-    image: '🐱',
+    image: require('@/assets/images/mimi.jpg'),
     description: 'Mimi é uma gatinha dócil e independente. Perfeita para quem busca um companheiro tranquilo.',
-    location: 'São Paulo, SP',
+    location: 'Taboão da Serra- SP',
     health: 'Vacinada, castrada, vermifugada',
     personality: ['Dócil', 'Independente', 'Carinhosa', 'Calma'],
     story: 'Mimi foi resgatada de uma colônia de gatos de rua. É muito carinhosa e se adapta bem a ambientes internos.',
     weight: '3kg',
-    photos: ['🐱', '😺', '😸'],
+    photos: [require('@/assets/images/mimi.jpg')],
   },
   {
     id: '3',
     name: 'Thor',
     species: 'Cão',
-    breed: 'Pastor Alemão',
+    breed: 'SRD',
     age: '3 anos',
     size: 'Grande',
     gender: 'Macho',
-    image: '🐕‍🦺',
+    image: require('@/assets/images/thor.jpg'),
     description: 'Thor é um cão protetor e leal. Ideal para quem busca um companheiro fiel.',
     location: 'São Paulo, SP',
     health: 'Vacinado, castrado, vermifugado',
     personality: ['Protetor', 'Leal', 'Inteligente', 'Corajoso'],
     story: 'Thor foi abandonado por sua família anterior, mas não perdeu a fé nos humanos. É um cão muito especial.',
     weight: '35kg',
-    photos: ['🐕‍🦺', '🐕', '🦮'],
+    photos: [require('@/assets/images/thor.jpg')],
   },
   {
     id: '4',
     name: 'Bella',
     species: 'Cão',
-    breed: 'Golden Retriever',
+    breed: 'SRD',
     age: '4 anos',
     size: 'Grande',
     gender: 'Fêmea',
-    image: '🦮',
+    image: require('@/assets/images/bela.jpg'),
     description: 'Bella é muito amigável e adora crianças. Uma companheira perfeita para famílias.',
     location: 'São Paulo, SP',
     health: 'Vacinada, castrada, vermifugada',
     personality: ['Amigável', 'Paciente', 'Brincalhona', 'Gentil'],
     story: 'Bella chegou até nós após seu dono idoso não conseguir mais cuidar dela. É uma cadelinha muito especial.',
     weight: '28kg',
-    photos: ['🦮', '🐕', '🐕‍🦺'],
+    photos: [require('@/assets/images/bela.jpg')],
   },
 ];
 
 export default function AnimalDetailScreen() {
   const { id } = useLocalSearchParams();
   const animal = animals.find(a => a.id === id);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   if (!animal) {
     return (
@@ -91,6 +94,15 @@ export default function AnimalDetailScreen() {
     router.push('/adoption/form');
   };
 
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    if (!isFavorite) {
+      Alert.alert('❤️', `${animal.name} adicionado aos favoritos!`);
+    } else {
+      Alert.alert('💔', `${animal.name} removido dos favoritos`);
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       <ThemedView style={styles.header}>
@@ -98,16 +110,22 @@ export default function AnimalDetailScreen() {
           <ThemedText style={styles.backButtonText}>← Voltar</ThemedText>
         </TouchableOpacity>
         
-        <ThemedView style={styles.favoriteButton}>
-          <ThemedText style={styles.favoriteIcon}>♡</ThemedText>
-        </ThemedView>
+        <TouchableOpacity style={styles.favoriteButton} onPress={handleFavorite}>
+          <ThemedText style={styles.favoriteIcon}>
+            {isFavorite ? '♥' : '♡'}
+          </ThemedText>
+        </TouchableOpacity>
       </ThemedView>
 
       <ThemedView style={styles.imageGallery}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photosScroll}>
           {animal.photos.map((photo, index) => (
             <ThemedView key={index} style={styles.photoContainer}>
-              <ThemedText style={styles.photoEmoji}>{photo}</ThemedText>
+              <Image 
+                source={photo} 
+                style={styles.photoImage}
+                contentFit="contain"
+              />
             </ThemedView>
           ))}
         </ScrollView>
@@ -209,6 +227,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+    overflow: 'hidden',
+  },
+  photoImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
   },
   photoEmoji: {
     fontSize: 64,

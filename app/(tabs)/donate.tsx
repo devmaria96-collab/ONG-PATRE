@@ -1,11 +1,16 @@
-import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function DonateScreen() {
-  const handleDonation = (amount: string) => {
-    // Implementar lógica de doação
-    console.log(`Doação de R$ ${amount}`);
+  const pixKey = 'ong.animais@email.com';
+
+  const handleCopyPix = () => {
+    Alert.alert(
+      '📋 Chave PIX',
+      `Chave copiada:\n${pixKey}\n\nCole no seu app de pagamento para fazer a doação.`,
+      [{ text: 'OK' }]
+    );
   };
 
   return (
@@ -17,48 +22,24 @@ export default function DonateScreen() {
       
       <ThemedView style={styles.content}>
         <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Valores Sugeridos</ThemedText>
-          <ThemedView style={styles.donationGrid}>
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('10')}>
-              <ThemedText style={styles.donationAmount}>R$ 10</ThemedText>
-              <ThemedText style={styles.donationDescription}>1 kg de ração</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('25')}>
-              <ThemedText style={styles.donationAmount}>R$ 25</ThemedText>
-              <ThemedText style={styles.donationDescription}>Medicamentos</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('50')}>
-              <ThemedText style={styles.donationAmount}>R$ 50</ThemedText>
-              <ThemedText style={styles.donationDescription}>Consulta veterinária</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('100')}>
-              <ThemedText style={styles.donationAmount}>R$ 100</ThemedText>
-              <ThemedText style={styles.donationDescription}>Castração</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        </ThemedView>
-
-        <ThemedView style={styles.section}>
           <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>PIX</ThemedText>
+          
+          <ThemedView style={styles.qrCodeContainer}>
+            <ThemedView style={styles.qrCode}>
+              <ThemedText style={styles.qrCodeText}>QR CODE</ThemedText>
+              <ThemedText style={styles.qrCodeSubtext}>Escaneie para doar</ThemedText>
+            </ThemedView>
+          </ThemedView>
+
           <ThemedView style={styles.pixContainer}>
-            <ThemedText>Chave PIX: ong.animais@email.com</ThemedText>
-            <TouchableOpacity style={styles.copyButton}>
+            <ThemedText style={styles.pixLabel}>Chave PIX:</ThemedText>
+            <ThemedText type="defaultSemiBold" style={styles.pixKey}>
+              ong.animais@email.com
+            </ThemedText>
+            <TouchableOpacity style={styles.copyButton} onPress={handleCopyPix}>
               <ThemedText style={styles.copyButtonText}>Copiar Chave</ThemedText>
             </TouchableOpacity>
           </ThemedView>
-        </ThemedView>
-
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Doação Recorrente</ThemedText>
-          <ThemedText style={styles.description}>
-            Torne-se um padrinho/madrinha e ajude mensalmente com qualquer valor.
-          </ThemedText>
-          <TouchableOpacity style={styles.recurringButton}>
-            <ThemedText style={styles.recurringButtonText}>Configurar Doação Mensal</ThemedText>
-          </TouchableOpacity>
         </ThemedView>
 
         <ThemedView style={styles.section}>
@@ -67,10 +48,22 @@ export default function DonateScreen() {
             Veja como suas doações estão sendo utilizadas:
           </ThemedText>
           <ThemedView style={styles.transparencyItem}>
-            <ThemedText>🏥 Veterinário: 40%</ThemedText>
-            <ThemedText>🍖 Alimentação: 35%</ThemedText>
-            <ThemedText>🏠 Abrigo: 15%</ThemedText>
-            <ThemedText>📋 Administrativo: 10%</ThemedText>
+            <ThemedView style={styles.transparencyRow}>
+              <ThemedText style={styles.transparencyEmoji}>🏥</ThemedText>
+              <ThemedText style={styles.transparencyText}>Veterinário: 40%</ThemedText>
+            </ThemedView>
+            <ThemedView style={styles.transparencyRow}>
+              <ThemedText style={styles.transparencyEmoji}>🍖</ThemedText>
+              <ThemedText style={styles.transparencyText}>Alimentação: 35%</ThemedText>
+            </ThemedView>
+            <ThemedView style={styles.transparencyRow}>
+              <ThemedText style={styles.transparencyEmoji}>🏠</ThemedText>
+              <ThemedText style={styles.transparencyText}>Abrigo: 15%</ThemedText>
+            </ThemedView>
+            <ThemedView style={styles.transparencyRow}>
+              <ThemedText style={styles.transparencyEmoji}>📋</ThemedText>
+              <ThemedText style={styles.transparencyText}>Administrativo: 10%</ThemedText>
+            </ThemedView>
           </ThemedView>
         </ThemedView>
       </ThemedView>
@@ -88,63 +81,63 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    gap: 24,
+    gap: 32,
   },
   section: {
-    gap: 12,
+    gap: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     marginBottom: 8,
   },
-  donationGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  donationButton: {
-    flex: 1,
-    minWidth: '45%',
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+  qrCodeContainer: {
     alignItems: 'center',
-    gap: 4,
+    marginVertical: 16,
   },
-  donationAmount: {
-    fontSize: 18,
+  qrCode: {
+    width: 200,
+    height: 200,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  qrCodeText: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#FF3B30',
+    opacity: 0.3,
   },
-  donationDescription: {
+  qrCodeSubtext: {
     fontSize: 12,
-    opacity: 0.8,
-    textAlign: 'center',
+    opacity: 0.3,
   },
   pixContainer: {
-    padding: 16,
+    padding: 20,
     borderRadius: 12,
     backgroundColor: 'rgba(52, 199, 89, 0.1)',
     gap: 12,
+    alignItems: 'center',
+  },
+  pixLabel: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  pixKey: {
+    fontSize: 16,
+    textAlign: 'center',
   },
   copyButton: {
     padding: 12,
+    paddingHorizontal: 24,
     borderRadius: 8,
     backgroundColor: '#34C759',
-    alignItems: 'center',
+    marginTop: 8,
   },
   copyButtonText: {
     color: 'white',
-    fontWeight: 'bold',
-  },
-  recurringButton: {
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-    alignItems: 'center',
-  },
-  recurringButtonText: {
-    color: '#007AFF',
     fontWeight: 'bold',
   },
   description: {
@@ -152,9 +145,20 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   transparencyItem: {
-    padding: 16,
+    padding: 20,
     borderRadius: 12,
     backgroundColor: 'rgba(255, 149, 0, 0.1)',
-    gap: 8,
+    gap: 16,
+  },
+  transparencyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  transparencyEmoji: {
+    fontSize: 24,
+  },
+  transparencyText: {
+    fontSize: 16,
   },
 });

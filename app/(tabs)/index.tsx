@@ -1,7 +1,9 @@
-import { StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { router } from 'expo-router';
+import { useState } from 'react';
 
 // Dados mockados dos animais
 const animals = [
@@ -9,11 +11,11 @@ const animals = [
     id: '1',
     name: 'Luna',
     species: 'Cão',
-    breed: 'Labrador',
-    age: '2 anos',
-    size: 'Grande',
+    breed: 'SRD',
+    age: '1 anos',
+    size: 'Médio',
     gender: 'Fêmea',
-    image: '🐕',
+    image: require('@/assets/images/luna.jpg'),
     description: 'Luna é uma cadela muito carinhosa e brincalhona.',
     location: 'São Paulo, SP',
   },
@@ -25,19 +27,19 @@ const animals = [
     age: '1 ano',
     size: 'Pequeno',
     gender: 'Fêmea',
-    image: '🐱',
+    image: require('@/assets/images/mimi.jpg'),
     description: 'Mimi é uma gatinha dócil e independente.',
-    location: 'São Paulo, SP',
+    location: 'Taboão da Serra- SP',
   },
   {
     id: '3',
     name: 'Thor',
     species: 'Cão',
-    breed: 'Pastor Alemão',
+    breed: 'SRD',
     age: '3 anos',
     size: 'Grande',
     gender: 'Macho',
-    image: '🐕‍🦺',
+    image: require('@/assets/images/thor.jpg'),
     description: 'Thor é um cão protetor e leal.',
     location: 'São Paulo, SP',
   },
@@ -45,19 +47,33 @@ const animals = [
     id: '4',
     name: 'Bella',
     species: 'Cão',
-    breed: 'Golden Retriever',
+    breed: 'SRD',
     age: '4 anos',
     size: 'Grande',
     gender: 'Fêmea',
-    image: '🦮',
+    image: require('@/assets/images/bela.jpg'),
     description: 'Bella é muito amigável e adora crianças.',
     location: 'São Paulo, SP',
   },
 ];
 
 export default function HomeScreen() {
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
   const handleAnimalPress = (animalId: string) => {
     router.push(`/animal/${animalId}` as any);
+  };
+
+  const handleFavorite = (animalId: string, animalName: string) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(animalId)) {
+      newFavorites.delete(animalId);
+      Alert.alert('💔', `${animalName} removido dos favoritos`);
+    } else {
+      newFavorites.add(animalId);
+      Alert.alert('❤️', `${animalName} adicionado aos favoritos!`);
+    }
+    setFavorites(newFavorites);
   };
 
   const renderAnimalCard = ({ item }: { item: typeof animals[0] }) => (
@@ -66,7 +82,11 @@ export default function HomeScreen() {
       onPress={() => handleAnimalPress(item.id)}
     >
       <ThemedView style={styles.animalImage}>
-        <ThemedText style={styles.animalEmoji}>{item.image}</ThemedText>
+        <Image 
+          source={item.image} 
+          style={styles.animalPhoto}
+          contentFit="cover"
+        />
       </ThemedView>
       
       <ThemedView style={styles.animalInfo}>
@@ -79,9 +99,14 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
       
-      <ThemedView style={styles.favoriteButton}>
-        <ThemedText style={styles.favoriteIcon}>♡</ThemedText>
-      </ThemedView>
+      <TouchableOpacity 
+        style={styles.favoriteButton}
+        onPress={() => handleFavorite(item.id, item.name)}
+      >
+        <ThemedText style={styles.favoriteIcon}>
+          {favorites.has(item.id) ? '♥' : '♡'}
+        </ThemedText>
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -90,26 +115,6 @@ export default function HomeScreen() {
       <ThemedView style={styles.header}>
         <ThemedText type="title">Animais para Adoção</ThemedText>
         <ThemedText type="subtitle">Encontre seu novo melhor amigo</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.filterContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-          <TouchableOpacity style={[styles.filterButton, styles.filterButtonActive]}>
-            <ThemedText style={styles.filterTextActive}>Todos</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>🐕 Cães</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>🐱 Gatos</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>Pequeno</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>Grande</ThemedText>
-          </TouchableOpacity>
-        </ScrollView>
       </ThemedView>
 
       <FlatList
@@ -130,31 +135,7 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     paddingTop: 60,
-  },
-  filterContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  filterScroll: {
-    flexGrow: 0,
-  },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    marginRight: 8,
-  },
-  filterButtonActive: {
-    backgroundColor: '#007AFF',
-  },
-  filterText: {
-    fontSize: 14,
-  },
-  filterTextActive: {
-    fontSize: 14,
-    color: 'white',
-    fontWeight: 'bold',
+    paddingBottom: 10,
   },
   animalsList: {
     padding: 20,
@@ -181,6 +162,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 122, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  animalPhoto: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
   },
   animalEmoji: {
     fontSize: 32,

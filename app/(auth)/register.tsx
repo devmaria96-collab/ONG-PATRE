@@ -2,50 +2,60 @@ import { StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'reac
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
-export default function LoginScreen() {
-  const [isLogin, setIsLogin] = useState(true);
+WebBrowser.maybeCompleteAuthSession();
+
+export default function RegisterScreen() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
   });
 
-  const handleSubmit = () => {
-    if (!formData.email || !formData.password) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
+  const handleRegister = () => {
+    if (!formData.name || !formData.email || !formData.password) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
       return;
     }
 
-    if (!isLogin) {
-      if (!formData.name) {
-        Alert.alert('Erro', 'Por favor, preencha seu nome.');
-        return;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        Alert.alert('Erro', 'As senhas não coincidem.');
-        return;
-      }
+    if (formData.password.length < 6) {
+      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+      return;
     }
 
-    // Navegar diretamente para as tabs após validação
-    try {
-      router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Erro na navegação:', error);
-      Alert.alert('Erro', 'Não foi possível completar o login. Tente novamente.');
-    }
+    // Simular cadastro
+    setTimeout(() => {
+      Alert.alert(
+        'Bem-vindo ao PATRE!',
+        'Cadastro realizado com sucesso! Agora você pode encontrar seu novo melhor amigo.',
+        [
+          {
+            text: 'Começar',
+            onPress: () => router.push('/(tabs)')
+          }
+        ]
+      );
+    }, 1000);
   };
 
-  const handleSocialLogin = (provider: string) => {
-    try {
-      router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Erro na navegação social:', error);
-      Alert.alert('Erro', 'Não foi possível completar o login. Tente novamente.');
-    }
+  const handleGoogleLogin = () => {
+    Alert.alert(
+      'Login com Google',
+      'Funcionalidade será implementada em breve!',
+      [
+        {
+          text: 'OK',
+          onPress: () => router.push('/(tabs)')
+        }
+      ]
+    );
+  };
+
+  const handleLoginRedirect = () => {
+    router.push('/(auth)/login');
   };
 
   return (
@@ -55,57 +65,32 @@ export default function LoginScreen() {
           <ThemedText style={styles.logoIcon}>🐾</ThemedText>
         </ThemedView>
         <ThemedText type="title" style={styles.brandName}>PATRE</ThemedText>
-        <ThemedText style={styles.tagline}>Proteção Animal & Resgate</ThemedText>
         <ThemedText style={styles.subtitle}>
-          Conectando corações e transformando vidas desde 2015
+          Junte-se à nossa missão de conectar corações e transformar vidas
         </ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.content}>
         <ThemedView style={styles.welcomeMessage}>
           <ThemedText style={styles.welcomeText}>
-            {isLogin ? 'Bem-vindo de volta!' : 'Junte-se à nossa missão!'}
+            Crie sua conta
           </ThemedText>
           <ThemedText style={styles.welcomeSubtext}>
-            {isLogin 
-              ? 'Entre na sua conta para continuar ajudando os animais' 
-              : 'Cadastre-se e faça parte da família PATRE'
-            }
+            Cadastre-se para encontrar seu novo melhor amigo
           </ThemedText>
-        </ThemedView>
-
-        <ThemedView style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, isLogin && styles.activeTab]}
-            onPress={() => setIsLogin(true)}
-          >
-            <ThemedText style={[styles.tabText, isLogin && styles.activeTabText]}>
-              Entrar
-            </ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, !isLogin && styles.activeTab]}
-            onPress={() => setIsLogin(false)}
-          >
-            <ThemedText style={[styles.tabText, !isLogin && styles.activeTabText]}>
-              Cadastrar
-            </ThemedText>
-          </TouchableOpacity>
         </ThemedView>
 
         <ThemedView style={styles.form}>
-          {!isLogin && (
-            <ThemedView style={styles.inputGroup}>
-              <ThemedText style={styles.label}>Nome Completo</ThemedText>
-              <TextInput
-                style={styles.input}
-                value={formData.name}
-                onChangeText={(text) => setFormData({...formData, name: text})}
-                placeholder="Como você gostaria de ser chamado?"
-                autoCapitalize="words"
-              />
-            </ThemedView>
-          )}
+          <ThemedView style={styles.inputGroup}>
+            <ThemedText style={styles.label}>Nome</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={formData.name}
+              onChangeText={(text) => setFormData({...formData, name: text})}
+              placeholder="Seu nome completo"
+              autoCapitalize="words"
+            />
+          </ThemedView>
 
           <ThemedView style={styles.inputGroup}>
             <ThemedText style={styles.label}>E-mail</ThemedText>
@@ -130,53 +115,32 @@ export default function LoginScreen() {
             />
           </ThemedView>
 
-          {!isLogin && (
-            <ThemedView style={styles.inputGroup}>
-              <ThemedText style={styles.label}>Confirmar Senha</ThemedText>
-              <TextInput
-                style={styles.input}
-                value={formData.confirmPassword}
-                onChangeText={(text) => setFormData({...formData, confirmPassword: text})}
-                placeholder="Digite a senha novamente"
-                secureTextEntry
-              />
-            </ThemedView>
-          )}
-
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <TouchableOpacity style={styles.submitButton} onPress={handleRegister}>
             <ThemedText style={styles.submitButtonText}>
-              {isLogin ? '🐕 Entrar no PATRE' : '❤️ Criar Conta no PATRE'}
+              ❤️ Criar Conta
             </ThemedText>
           </TouchableOpacity>
-
-          {isLogin && (
-            <TouchableOpacity style={styles.forgotPassword}>
-              <ThemedText style={styles.forgotPasswordText}>
-                Esqueceu sua senha?
-              </ThemedText>
-            </TouchableOpacity>
-          )}
         </ThemedView>
 
         <ThemedView style={styles.divider}>
           <ThemedView style={styles.dividerLine} />
-          <ThemedText style={styles.dividerText}>ou continue com</ThemedText>
+          <ThemedText style={styles.dividerText}>ou</ThemedText>
           <ThemedView style={styles.dividerLine} />
         </ThemedView>
 
-        <ThemedView style={styles.socialButtons}>
-          <TouchableOpacity
-            style={styles.socialButton}
-            onPress={() => handleSocialLogin('Google')}
-          >
-            <ThemedText style={styles.socialButtonText}>🔍 Google</ThemedText>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={handleGoogleLogin}
+        >
+          <ThemedText style={styles.googleButtonText}>🔍 Entrar com Google</ThemedText>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.socialButton}
-            onPress={() => handleSocialLogin('Apple')}
-          >
-            <ThemedText style={styles.socialButtonText}>🍎 Apple</ThemedText>
+        <ThemedView style={styles.loginRedirect}>
+          <ThemedText style={styles.loginText}>
+            Já tem uma conta?{' '}
+          </ThemedText>
+          <TouchableOpacity onPress={handleLoginRedirect}>
+            <ThemedText style={styles.loginLink}>Entrar</ThemedText>
           </TouchableOpacity>
         </ThemedView>
 
@@ -228,20 +192,15 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: '#007AFF',
-    marginBottom: 8,
+    marginBottom: 16,
     letterSpacing: 2,
   },
-  tagline: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-    marginBottom: 8,
-  },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: 'center',
     opacity: 0.7,
-    fontStyle: 'italic',
+    lineHeight: 22,
+    paddingHorizontal: 20,
   },
   content: {
     paddingHorizontal: 20,
@@ -252,7 +211,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
@@ -263,31 +222,8 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     lineHeight: 22,
   },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: 12,
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  activeTab: {
-    backgroundColor: '#007AFF',
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
   form: {
-    gap: 16,
+    gap: 20,
   },
   inputGroup: {
     gap: 8,
@@ -325,15 +261,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  forgotPassword: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  forgotPasswordText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '500',
-  },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -348,22 +275,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     opacity: 0.6,
   },
-  socialButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  socialButton: {
-    flex: 1,
+  googleButton: {
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    padding: 16,
+    padding: 18,
     borderRadius: 12,
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.02)',
   },
-  socialButtonText: {
+  googleButtonText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  loginRedirect: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  loginText: {
+    fontSize: 16,
+    opacity: 0.7,
+  },
+  loginLink: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
   },
   footer: {
     paddingVertical: 20,

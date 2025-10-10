@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 
 export default function WelcomeScreen() {
   const handleEnterPress = () => {
-    router.push('/(tabs)');
+    router.push('/(auth)/login');
   };
 
   return (

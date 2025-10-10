@@ -1,110 +1,127 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { StyleSheet, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
+    <ScrollView style={styles.container}>
+      <ThemedView style={styles.content}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title" style={styles.title}>🐾 Quem Somos</ThemedText>
+        </ThemedView>
+        
+        <ThemedView style={styles.card}>
+          <ThemedText style={styles.description}>
+            <ThemedText type="defaultSemiBold">Patre</ThemedText> é uma iniciativa sem fins lucrativos que{' '}
+            <ThemedText type="defaultSemiBold">resgata, cuida e conecta cães e gatos a lares responsáveis</ThemedText>.
           </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+          
+          <ThemedText style={styles.description}>
+            Trabalhamos com carinho, responsabilidade e transparência para oferecer a cada animal{' '}
+            <ThemedText type="defaultSemiBold">segurança, saúde e uma segunda chance</ThemedText>.
+          </ThemedText>
+        </ThemedView>
+
+        <ThemedView style={styles.valuesSection}>
+          <ThemedText type="subtitle" style={styles.valuesTitle}>Nossos Valores</ThemedText>
+          
+          <ThemedView style={styles.valueItem}>
+            <ThemedText style={styles.valueEmoji}>❤️</ThemedText>
+            <ThemedView style={styles.valueText}>
+              <ThemedText type="defaultSemiBold">Amor e Respeito</ThemedText>
+              <ThemedText style={styles.valueDescription}>
+                Cada animal merece ser tratado com dignidade e carinho
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+
+          <ThemedView style={styles.valueItem}>
+            <ThemedText style={styles.valueEmoji}>🏥</ThemedText>
+            <ThemedView style={styles.valueText}>
+              <ThemedText type="defaultSemiBold">Cuidado Integral</ThemedText>
+              <ThemedText style={styles.valueDescription}>
+                Garantimos assistência veterinária e bem-estar para todos
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+
+          <ThemedView style={styles.valueItem}>
+            <ThemedText style={styles.valueEmoji}>🤝</ThemedText>
+            <ThemedView style={styles.valueText}>
+              <ThemedText type="defaultSemiBold">Adoção Responsável</ThemedText>
+              <ThemedText style={styles.valueDescription}>
+                Conectamos animais a famílias preparadas para cuidar deles
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+
+          <ThemedView style={styles.valueItem}>
+            <ThemedText style={styles.valueEmoji}>🌟</ThemedText>
+            <ThemedView style={styles.valueText}>
+              <ThemedText type="defaultSemiBold">Transparência</ThemedText>
+              <ThemedText style={styles.valueDescription}>
+                Mantemos clareza em todas as nossas ações e processos
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
-  titleContainer: {
+  content: {
+    padding: 20,
+    paddingTop: 60,
+  },
+  header: {
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 32,
+    textAlign: 'center',
+  },
+  card: {
+    backgroundColor: 'rgba(0, 122, 255, 0.08)',
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
+    marginBottom: 32,
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'justify',
+  },
+  valuesSection: {
+    gap: 16,
+  },
+  valuesTitle: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  valueItem: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  valueEmoji: {
+    fontSize: 32,
+  },
+  valueText: {
+    flex: 1,
+    gap: 4,
+  },
+  valueDescription: {
+    opacity: 0.7,
+    fontSize: 14,
   },
 });
