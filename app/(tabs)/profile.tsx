@@ -1,8 +1,58 @@
-import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
+import { AppButton } from '@/components/ui/AppButton';
+import { AppCard, PageHeader, ScreenContainer } from '@/components/ui/ScreenLayout';
+import { Palette, Radius, Spacing } from '@/constants/Theme';
+import { useAuth } from '@/contexts/AuthContext';
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+const sections = [
+  {
+    title: 'Minha conta',
+    items: [
+      { label: 'Dados Pessoais', icon: 'person-outline' },
+      { label: 'Contato', icon: 'phone-iphone' },
+      { label: 'Alterar Senha', icon: 'lock-outline' },
+    ],
+  },
+  {
+    title: 'Minhas atividades',
+    items: [
+      { label: 'Meus Pedidos de Adoção', icon: 'assignment', badge: 2 },
+      { label: 'Animais Favoritos', icon: 'favorite-border', badge: 5 },
+      { label: 'Eventos Inscritos', icon: 'confirmation-number' },
+      { label: 'Histórico de Doações', icon: 'volunteer-activism' },
+    ],
+  },
+  {
+    title: 'Configurações',
+    items: [
+      { label: 'Notificações', icon: 'notifications-none' },
+      { label: 'Tema Escuro', icon: 'dark-mode' },
+      { label: 'Idioma', icon: 'language' },
+    ],
+  },
+  {
+    title: 'Suporte',
+    items: [
+      { label: 'Central de Ajuda', icon: 'help-outline' },
+      { label: 'Fale Conosco', icon: 'support-agent' },
+      { label: 'Avaliar App', icon: 'star-outline' },
+    ],
+  },
+] as const;
 
 export default function ProfileScreen() {
+  const { width } = useWindowDimensions();
+  const { signOut } = useAuth();
+  const text = useThemeColor({}, 'text');
+  const muted = useThemeColor({}, 'muted');
+  const primary = useThemeColor({}, 'primary');
+  const surfaceSoft = useThemeColor({}, 'surfaceSoft');
+  const border = useThemeColor({}, 'border');
+  const desktop = width >= 900;
   const user = {
     name: 'Maria Silva',
     email: 'maria.silva@email.com',
@@ -11,193 +61,122 @@ export default function ProfileScreen() {
     favorites: 5,
   };
 
+  const handleLogout = () => {
+    signOut();
+    router.replace('/login');
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedView style={styles.avatar}>
-          <ThemedText style={styles.avatarText}>MS</ThemedText>
-        </ThemedView>
-        <ThemedText type="title">{user.name}</ThemedText>
-        <ThemedText style={styles.email}>{user.email}</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.content}>
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Minha Conta</ThemedText>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>👤 Dados Pessoais</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>📱 Contato</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🔒 Alterar Senha</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+    <ScreenContainer>
+      <PageHeader
+        eyebrow="Área do usuário"
+        title="Meu perfil"
+        subtitle="Acompanhe sua conta, atividades e preferências."
+      />
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Minhas Atividades</ThemedText>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedView style={styles.menuItemContent}>
-              <ThemedText>📋 Meus Pedidos de Adoção</ThemedText>
-              <ThemedView style={styles.badge}>
-                <ThemedText style={styles.badgeText}>{user.adoptionRequests}</ThemedText>
-              </ThemedView>
-            </ThemedView>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedView style={styles.menuItemContent}>
-              <ThemedText>❤️ Animais Favoritos</ThemedText>
-              <ThemedView style={styles.badge}>
-                <ThemedText style={styles.badgeText}>{user.favorites}</ThemedText>
-              </ThemedView>
-            </ThemedView>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🎫 Eventos Inscritos</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>💝 Histórico de Doações</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+      <View style={[styles.layout, desktop && styles.layoutDesktop]}>
+        <AppCard style={[styles.profileCard, desktop && styles.profileCardDesktop]}>
+          <View style={[styles.avatar, { backgroundColor: primary }]}>
+            <Text style={styles.avatarText}>MS</Text>
+          </View>
+          <View style={styles.userCopy}>
+            <Text style={[styles.userName, { color: text }]}>{user.name}</Text>
+            <Text style={[styles.userMeta, { color: muted }]}>{user.email}</Text>
+            <Text style={[styles.userMeta, { color: muted }]}>{user.phone}</Text>
+          </View>
+          <View style={styles.stats}>
+            <View style={styles.stat}>
+              <Text style={[styles.statValue, { color: primary }]}>{user.adoptionRequests}</Text>
+              <Text style={[styles.statLabel, { color: muted }]}>Pedidos</Text>
+            </View>
+            <View style={[styles.statDivider, { backgroundColor: border }]} />
+            <View style={styles.stat}>
+              <Text style={[styles.statValue, { color: primary }]}>{user.favorites}</Text>
+              <Text style={[styles.statLabel, { color: muted }]}>Favoritos</Text>
+            </View>
+          </View>
+          <AppButton label="Sair da conta" icon="logout" variant="ghost" onPress={handleLogout} />
+        </AppCard>
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Configurações</ThemedText>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🔔 Notificações</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🌙 Tema Escuro</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>🌍 Idioma</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Suporte</ThemedText>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>❓ Central de Ajuda</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>📞 Fale Conosco</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <ThemedText>⭐ Avaliar App</ThemedText>
-            <ThemedText style={styles.arrow}>›</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-
-        <TouchableOpacity style={styles.logoutButton}>
-          <ThemedText style={styles.logoutText}>Sair da Conta</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-    </ScrollView>
+        <View style={styles.sections}>
+          {sections.map((section) => (
+            <AppCard key={section.title} style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: text }]}>{section.title}</Text>
+              <View style={styles.menu}>
+                {section.items.map((item) => (
+                  <Pressable
+                    accessibilityRole="button"
+                    key={item.label}
+                    style={({ pressed }) => [
+                      styles.menuItem,
+                      { backgroundColor: surfaceSoft, opacity: pressed ? 0.75 : 1 },
+                    ]}>
+                    <View style={styles.itemMain}>
+                      <View style={[styles.itemIcon, { backgroundColor: Palette.sageLight }]}>
+                        <MaterialIcons
+                          name={item.icon}
+                          size={20}
+                          color={Palette.forest}
+                        />
+                      </View>
+                      <Text style={[styles.itemLabel, { color: text }]}>{item.label}</Text>
+                      {'badge' in item && (
+                        <View style={styles.badge}>
+                          <Text style={styles.badgeText}>{item.badge}</Text>
+                        </View>
+                      )}
+                    </View>
+                    <MaterialIcons name="chevron-right" size={22} color={muted} />
+                  </Pressable>
+                ))}
+              </View>
+            </AppCard>
+          ))}
+        </View>
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    alignItems: 'center',
-    gap: 12,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  email: {
-    opacity: 0.7,
-  },
-  content: {
-    padding: 20,
-    gap: 24,
-  },
-  section: {
-    gap: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    marginBottom: 12,
-  },
+  layout: { gap: Spacing.xl },
+  layoutDesktop: { flexDirection: 'row', alignItems: 'flex-start' },
+  profileCard: { padding: Spacing.xl, alignItems: 'center', gap: Spacing.lg },
+  profileCardDesktop: { width: 320 },
+  avatar: { width: 84, height: 84, borderRadius: Radius.pill, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { color: Palette.white, fontSize: 25, fontWeight: '900' },
+  userCopy: { alignItems: 'center', gap: Spacing.xs },
+  userName: { fontSize: 23, fontWeight: '800' },
+  userMeta: { fontSize: 14 },
+  stats: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  stat: { flex: 1, alignItems: 'center', gap: 2 },
+  statDivider: { width: 1, height: 38 },
+  statValue: { fontSize: 22, fontWeight: '900' },
+  statLabel: { fontSize: 12 },
+  sections: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xl },
+  section: { width: '100%', padding: Spacing.xl, gap: Spacing.lg },
+  sectionTitle: { fontSize: 18, fontWeight: '800' },
+  menu: { gap: Spacing.sm },
   menuItem: {
+    minHeight: 58,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    marginBottom: 8,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    gap: Spacing.md,
   },
-  menuItemContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
+  itemMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  itemIcon: { width: 36, height: 36, borderRadius: Radius.sm, alignItems: 'center', justifyContent: 'center' },
+  itemLabel: { flexShrink: 1, fontSize: 15, fontWeight: '600' },
   badge: {
-    backgroundColor: '#FF3B30',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
     minWidth: 24,
+    height: 24,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.coral,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.sm,
   },
-  badgeText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  arrow: {
-    fontSize: 18,
-    opacity: 0.5,
-  },
-  logoutButton: {
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  logoutText: {
-    color: '#FF3B30',
-    fontWeight: 'bold',
-  },
+  badgeText: { color: Palette.white, fontSize: 12, fontWeight: '900' },
 });

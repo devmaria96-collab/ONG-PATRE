@@ -7,6 +7,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Radius } from '@/constants/Theme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -15,16 +16,25 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '700',
+          marginTop: 2,
+        },
+        tabBarItemStyle: {
+          borderRadius: Radius.md,
+          marginVertical: 5,
+        },
+        tabBarStyle: {
+          height: Platform.OS === 'ios' ? 88 : 70,
+          paddingTop: 6,
+          backgroundColor: Colors[colorScheme ?? 'light'].surface,
+          borderTopColor: Colors[colorScheme ?? 'light'].border,
+        },
       }}>
       <Tabs.Screen
         name="index"
@@ -52,6 +62,13 @@ export default function TabLayout() {
         options={{
           title: 'Perfil',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'Sobre',
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="info.circle.fill" color={color} />,
         }}
       />
     </Tabs>

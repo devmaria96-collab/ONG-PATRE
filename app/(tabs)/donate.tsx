@@ -1,160 +1,189 @@
-import { StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
+import { AppButton } from '@/components/ui/AppButton';
+import { AppCard, PageHeader, ScreenContainer } from '@/components/ui/ScreenLayout';
+import { Palette, Radius, Spacing } from '@/constants/Theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+const donationOptions = [
+  { amount: '10', description: '1 kg de ração', icon: 'restaurant' },
+  { amount: '25', description: 'Medicamentos', icon: 'medication' },
+  { amount: '50', description: 'Consulta veterinária', icon: 'medical-services' },
+  { amount: '100', description: 'Castração', icon: 'pets' },
+] as const;
 
 export default function DonateScreen() {
+  const { width } = useWindowDimensions();
+  const text = useThemeColor({}, 'text');
+  const muted = useThemeColor({}, 'muted');
+  const primary = useThemeColor({}, 'primary');
+  const surface = useThemeColor({}, 'surface');
+  const surfaceSoft = useThemeColor({}, 'surfaceSoft');
+  const border = useThemeColor({}, 'border');
+  const desktop = width >= 900;
+
   const handleDonation = (amount: string) => {
     // Implementar lógica de doação
     console.log(`Doação de R$ ${amount}`);
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">Doações</ThemedText>
-        <ThemedText type="subtitle">Sua ajuda faz a diferença na vida dos animais</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.content}>
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Valores Sugeridos</ThemedText>
-          <ThemedView style={styles.donationGrid}>
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('10')}>
-              <ThemedText style={styles.donationAmount}>R$ 10</ThemedText>
-              <ThemedText style={styles.donationDescription}>1 kg de ração</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('25')}>
-              <ThemedText style={styles.donationAmount}>R$ 25</ThemedText>
-              <ThemedText style={styles.donationDescription}>Medicamentos</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('50')}>
-              <ThemedText style={styles.donationAmount}>R$ 50</ThemedText>
-              <ThemedText style={styles.donationDescription}>Consulta veterinária</ThemedText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.donationButton} onPress={() => handleDonation('100')}>
-              <ThemedText style={styles.donationAmount}>R$ 100</ThemedText>
-              <ThemedText style={styles.donationDescription}>Castração</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        </ThemedView>
+    <ScreenContainer>
+      <PageHeader
+        eyebrow="Apoie a missão"
+        title="Doações"
+        subtitle="Sua ajuda faz a diferença na vida dos animais."
+      />
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>PIX</ThemedText>
-          <ThemedView style={styles.pixContainer}>
-            <ThemedText>Chave PIX: ong.animais@email.com</ThemedText>
-            <TouchableOpacity style={styles.copyButton}>
-              <ThemedText style={styles.copyButtonText}>Copiar Chave</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        </ThemedView>
+      <View style={[styles.columns, desktop && styles.columnsDesktop]}>
+        <View style={styles.mainColumn}>
+          <AppCard style={styles.section}>
+            <SectionTitle
+              icon="favorite"
+              title="Valores sugeridos"
+              subtitle="Escolha como deseja transformar uma vida hoje."
+              color={text}
+              muted={muted}
+            />
+            <View style={styles.donationGrid}>
+              {donationOptions.map((option) => (
+                <Pressable
+                  accessibilityRole="button"
+                  key={option.amount}
+                  onPress={() => handleDonation(option.amount)}
+                  style={({ pressed }) => [
+                    styles.donationButton,
+                    { backgroundColor: surfaceSoft, borderColor: border, opacity: pressed ? 0.8 : 1 },
+                  ]}>
+                  <MaterialIcons name={option.icon} size={23} color={Palette.coral} />
+                  <Text style={styles.donationAmount}>R$ {option.amount}</Text>
+                  <Text style={[styles.donationDescription, { color: muted }]}>
+                    {option.description}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </AppCard>
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Doação Recorrente</ThemedText>
-          <ThemedText style={styles.description}>
-            Torne-se um padrinho/madrinha e ajude mensalmente com qualquer valor.
-          </ThemedText>
-          <TouchableOpacity style={styles.recurringButton}>
-            <ThemedText style={styles.recurringButtonText}>Configurar Doação Mensal</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+          <AppCard style={styles.section}>
+            <SectionTitle
+              icon="autorenew"
+              title="Doação recorrente"
+              subtitle="Torne-se um padrinho/madrinha e ajude mensalmente com qualquer valor."
+              color={text}
+              muted={muted}
+            />
+            <AppButton label="Configurar doação mensal" icon="calendar-month" variant="secondary" />
+          </AppCard>
+        </View>
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Transparência</ThemedText>
-          <ThemedText style={styles.description}>
-            Veja como suas doações estão sendo utilizadas:
-          </ThemedText>
-          <ThemedView style={styles.transparencyItem}>
-            <ThemedText>🏥 Veterinário: 40%</ThemedText>
-            <ThemedText>🍖 Alimentação: 35%</ThemedText>
-            <ThemedText>🏠 Abrigo: 15%</ThemedText>
-            <ThemedText>📋 Administrativo: 10%</ThemedText>
-          </ThemedView>
-        </ThemedView>
-      </ThemedView>
-    </ScrollView>
+        <View style={styles.sideColumn}>
+          <AppCard style={[styles.section, { backgroundColor: surfaceSoft }]}>
+            <SectionTitle
+              icon="pix"
+              title="PIX"
+              subtitle="Transferência rápida e sem taxas."
+              color={text}
+              muted={muted}
+            />
+            <View style={[styles.pixKey, { backgroundColor: surface, borderColor: border }]}>
+              <Text style={[styles.pixLabel, { color: muted }]}>Chave PIX</Text>
+              <Text selectable style={[styles.pixValue, { color: text }]}>
+                ong.animais@email.com
+              </Text>
+            </View>
+            <AppButton label="Copiar chave" icon="content-copy" />
+          </AppCard>
+
+          <AppCard style={styles.section}>
+            <SectionTitle
+              icon="pie-chart"
+              title="Transparência"
+              subtitle="Veja como suas doações estão sendo utilizadas:"
+              color={text}
+              muted={muted}
+            />
+            <View style={styles.transparency}>
+              {[
+                ['medical-services', 'Veterinário', '40%'],
+                ['restaurant', 'Alimentação', '35%'],
+                ['home', 'Abrigo', '15%'],
+                ['description', 'Administrativo', '10%'],
+              ].map(([icon, label, value]) => (
+                <View key={label} style={styles.transparencyItem}>
+                  <View style={styles.transparencyLabel}>
+                    <MaterialIcons
+                      name={icon as keyof typeof MaterialIcons.glyphMap}
+                      size={19}
+                      color={primary}
+                    />
+                    <Text style={[styles.itemText, { color: text }]}>{label}</Text>
+                  </View>
+                  <Text style={[styles.percent, { color: primary }]}>{value}</Text>
+                </View>
+              ))}
+            </View>
+          </AppCard>
+        </View>
+      </View>
+    </ScreenContainer>
+  );
+}
+
+function SectionTitle({
+  icon,
+  title,
+  subtitle,
+  color,
+  muted,
+}: {
+  icon: keyof typeof MaterialIcons.glyphMap;
+  title: string;
+  subtitle: string;
+  color: string;
+  muted: string;
+}) {
+  return (
+    <View style={styles.sectionHeading}>
+      <MaterialIcons name={icon} size={24} color={Palette.coral} />
+      <View style={styles.sectionCopy}>
+        <Text style={[styles.sectionTitle, { color }]}>{title}</Text>
+        <Text style={[styles.sectionSubtitle, { color: muted }]}>{subtitle}</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-  },
-  content: {
-    padding: 20,
-    gap: 24,
-  },
-  section: {
-    gap: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  donationGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
+  columns: { gap: Spacing.xl },
+  columnsDesktop: { flexDirection: 'row', alignItems: 'flex-start' },
+  mainColumn: { flex: 1.35, gap: Spacing.xl },
+  sideColumn: { flex: 1, gap: Spacing.xl },
+  section: { padding: Spacing.xl, gap: Spacing.xl },
+  sectionHeading: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
+  sectionCopy: { flex: 1, gap: Spacing.xs },
+  sectionTitle: { fontSize: 20, lineHeight: 25, fontWeight: '800' },
+  sectionSubtitle: { fontSize: 14, lineHeight: 20 },
+  donationGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md },
   donationButton: {
-    flex: 1,
-    minWidth: '45%',
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
-    alignItems: 'center',
-    gap: 4,
+    flexGrow: 1,
+    flexBasis: 145,
+    minHeight: 128,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    justifyContent: 'center',
+    gap: Spacing.sm,
   },
-  donationAmount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FF3B30',
-  },
-  donationDescription: {
-    fontSize: 12,
-    opacity: 0.8,
-    textAlign: 'center',
-  },
-  pixContainer: {
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-    gap: 12,
-  },
-  copyButton: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#34C759',
-    alignItems: 'center',
-  },
-  copyButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  recurringButton: {
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-    alignItems: 'center',
-  },
-  recurringButtonText: {
-    color: '#007AFF',
-    fontWeight: 'bold',
-  },
-  description: {
-    opacity: 0.8,
-    lineHeight: 20,
-  },
-  transparencyItem: {
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 149, 0, 0.1)',
-    gap: 8,
-  },
+  donationAmount: { color: Palette.coral, fontSize: 20, fontWeight: '900' },
+  donationDescription: { fontSize: 13, lineHeight: 18 },
+  pixKey: { borderWidth: 1, borderRadius: Radius.md, padding: Spacing.lg, gap: Spacing.xs },
+  pixLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
+  pixValue: { fontSize: 16, fontWeight: '700' },
+  transparency: { gap: Spacing.lg },
+  transparencyItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  transparencyLabel: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  itemText: { fontSize: 15 },
+  percent: { fontSize: 15, fontWeight: '900' },
 });

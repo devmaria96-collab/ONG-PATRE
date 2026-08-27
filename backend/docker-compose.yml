@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: patre-postgres
+    environment:
+      POSTGRES_DB: patre
+      POSTGRES_USER: patre
+      POSTGRES_PASSWORD: patre
+    ports:
+      - "5432:5432"
+    volumes:
+      - patre_pgdata:/var/lib/postgresql/data
+
+volumes:
+  patre_pgdata:

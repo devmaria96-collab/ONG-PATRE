@@ -1,110 +1,121 @@
-import { StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
+import { AppButton } from '@/components/ui/AppButton';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { ScreenContainer } from '@/components/ui/ScreenLayout';
+import { Palette, Radius, Spacing, Typography } from '@/constants/Theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function WelcomeScreen() {
-  const handleEnterPress = () => {
-    router.push('/(tabs)');
-  };
+  const { width } = useWindowDimensions();
+  const text = useThemeColor({}, 'text');
+  const muted = useThemeColor({}, 'muted');
+  const desktop = width >= 820;
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.content}>
-        {/* Logo/Ícone */}
-        <ThemedView style={styles.logoContainer}>
-          <ThemedText style={styles.logoEmoji}>🐾</ThemedText>
-        </ThemedView>
-        
-        {/* Nome do Local */}
-        <ThemedText type="title" style={styles.title}>
-          Patre
-        </ThemedText>
-        
-        <ThemedText type="subtitle" style={styles.subtitle}>
-          Conectando corações e patinhas
-        </ThemedText>
-        
-        <ThemedText style={styles.description}>
-          Encontre seu novo melhor amigo e dê uma segunda chance para animais que precisam de um lar cheio de amor.
-        </ThemedText>
-      </ThemedView>
-      
-      {/* Botão Entrar */}
-      <ThemedView style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.enterButton} onPress={handleEnterPress}>
-          <ThemedText style={styles.enterButtonText}>Entrar</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-    </ThemedView>
+    <ScreenContainer
+      scroll={false}
+      maxWidth={1180}
+      contentContainerStyle={[styles.page, desktop && styles.pageDesktop]}>
+      <View style={[styles.copy, desktop && styles.copyDesktop]}>
+        <BrandMark />
+        <View style={styles.heading}>
+          <Text style={[styles.eyebrow, { color: Palette.coral }]}>Conectando corações e patinhas</Text>
+          <Text style={[styles.title, { color: text }, desktop && styles.titleDesktop]}>
+            Uma segunda chance começa com um encontro.
+          </Text>
+          <Text style={[styles.description, { color: muted }]}>
+            Encontre seu novo melhor amigo e dê um lar cheio de amor a animais que esperam por uma
+            família.
+          </Text>
+        </View>
+        <AppButton
+          label="Entrar"
+          icon="arrow-forward"
+          fullWidth={!desktop}
+          onPress={() => router.push('/login')}
+          style={desktop ? styles.buttonDesktop : undefined}
+        />
+      </View>
+
+      <View style={[styles.visual, desktop && styles.visualDesktop]}>
+        <View style={styles.orbitLarge}>
+          <View style={styles.orbitSmall}>
+            <MaterialIcons name="pets" size={desktop ? 100 : 72} color={Palette.white} />
+          </View>
+        </View>
+        <View style={[styles.note, styles.noteTop]}>
+          <MaterialIcons name="favorite" size={20} color={Palette.coral} />
+          <Text style={styles.noteText}>Adoção responsável</Text>
+        </View>
+        <View style={[styles.note, styles.noteBottom]}>
+          <MaterialIcons name="home" size={20} color={Palette.forest} />
+          <Text style={styles.noteText}>Um lar para cada história</Text>
+        </View>
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: 32,
-    paddingVertical: 60,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 24,
-  },
-  logoContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  logoEmoji: {
-    fontSize: 48,
+  page: { flex: 1, justifyContent: 'center', gap: Spacing.xxl, paddingVertical: Spacing.xxl },
+  pageDesktop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xxxl },
+  copy: { flex: 1, gap: Spacing.xxxl },
+  copyDesktop: { maxWidth: 560 },
+  heading: { gap: Spacing.lg },
+  eyebrow: {
+    fontSize: Typography.caption,
+    lineHeight: 18,
+    fontWeight: '900',
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
   },
   title: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
+    fontSize: 38,
+    lineHeight: 45,
+    fontWeight: '900',
+    letterSpacing: -1,
   },
-  subtitle: {
-    fontSize: 18,
-    textAlign: 'center',
-    opacity: 0.8,
-    marginBottom: 16,
-  },
-  description: {
-    fontSize: 16,
-    textAlign: 'center',
-    opacity: 0.7,
-    lineHeight: 24,
-    paddingHorizontal: 16,
-  },
-  buttonContainer: {
-    paddingBottom: 20,
-  },
-  enterButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 25,
+  titleDesktop: { fontSize: 56, lineHeight: 64 },
+  description: { fontSize: Typography.body, lineHeight: 26, maxWidth: 520 },
+  buttonDesktop: { width: 190 },
+  visual: {
+    minHeight: 300,
+    flex: 1,
     alignItems: 'center',
-    shadowColor: '#007AFF',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    justifyContent: 'center',
+    position: 'relative',
   },
-  enterButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+  visualDesktop: { minHeight: 560 },
+  orbitLarge: {
+    width: 270,
+    height: 270,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.sageLight,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  orbitSmall: {
+    width: 180,
+    height: 180,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.forest,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  note: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.pill,
+    backgroundColor: Palette.white,
+  },
+  noteTop: { top: '12%', right: '2%' },
+  noteBottom: { bottom: '12%', left: '2%' },
+  noteText: { color: Palette.ink, fontSize: 13, fontWeight: '700' },
 });

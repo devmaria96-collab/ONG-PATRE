@@ -1,221 +1,168 @@
-import { StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
-// Dados mockados dos animais
-const animals = [
-  {
-    id: '1',
-    name: 'Luna',
-    species: 'Cão',
-    breed: 'Labrador',
-    age: '2 anos',
-    size: 'Grande',
-    gender: 'Fêmea',
-    image: '🐕',
-    description: 'Luna é uma cadela muito carinhosa e brincalhona.',
-    location: 'São Paulo, SP',
-  },
-  {
-    id: '2',
-    name: 'Mimi',
-    species: 'Gato',
-    breed: 'SRD',
-    age: '1 ano',
-    size: 'Pequeno',
-    gender: 'Fêmea',
-    image: '🐱',
-    description: 'Mimi é uma gatinha dócil e independente.',
-    location: 'São Paulo, SP',
-  },
-  {
-    id: '3',
-    name: 'Thor',
-    species: 'Cão',
-    breed: 'Pastor Alemão',
-    age: '3 anos',
-    size: 'Grande',
-    gender: 'Macho',
-    image: '🐕‍🦺',
-    description: 'Thor é um cão protetor e leal.',
-    location: 'São Paulo, SP',
-  },
-  {
-    id: '4',
-    name: 'Bella',
-    species: 'Cão',
-    breed: 'Golden Retriever',
-    age: '4 anos',
-    size: 'Grande',
-    gender: 'Fêmea',
-    image: '🦮',
-    description: 'Bella é muito amigável e adora crianças.',
-    location: 'São Paulo, SP',
-  },
-];
+import { AppCard, PageHeader, ScreenContainer } from '@/components/ui/ScreenLayout';
+import { Palette, Radius, Spacing } from '@/constants/Theme';
+import { Animal, animals } from '@/data/animals';
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+const filters = [
+  { label: 'Todos', icon: 'apps' },
+  { label: 'Cães', icon: 'pets' },
+  { label: 'Gatos', icon: 'pets' },
+  { label: 'Pequeno', icon: 'filter-alt' },
+  { label: 'Grande', icon: 'filter-alt' },
+] as const;
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const text = useThemeColor({}, 'text');
+  const muted = useThemeColor({}, 'muted');
+  const primary = useThemeColor({}, 'primary');
+  const surfaceSoft = useThemeColor({}, 'surfaceSoft');
+  const border = useThemeColor({}, 'border');
+  const columns = width >= 980 ? 2 : 1;
+
   const handleAnimalPress = (animalId: string) => {
-    router.push(`/animal/${animalId}` as any);
+    router.push(`/animal/${animalId}` as never);
   };
 
-  const renderAnimalCard = ({ item }: { item: typeof animals[0] }) => (
-    <TouchableOpacity 
-      style={styles.animalCard} 
-      onPress={() => handleAnimalPress(item.id)}
-    >
-      <ThemedView style={styles.animalImage}>
-        <ThemedText style={styles.animalEmoji}>{item.image}</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.animalInfo}>
-        <ThemedText type="defaultSemiBold" style={styles.animalName}>{item.name}</ThemedText>
-        <ThemedText style={styles.animalDetails}>{item.breed} • {item.age}</ThemedText>
-        <ThemedText style={styles.animalDetails}>{item.size} • {item.gender}</ThemedText>
-        <ThemedText style={styles.animalLocation}>📍 {item.location}</ThemedText>
-        <ThemedText style={styles.animalDescription} numberOfLines={2}>
-          {item.description}
-        </ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.favoriteButton}>
-        <ThemedText style={styles.favoriteIcon}>♡</ThemedText>
-      </ThemedView>
-    </TouchableOpacity>
+  const renderAnimalCard = (animal: Animal) => (
+    <Pressable
+      accessibilityRole="button"
+      key={animal.id}
+      onPress={() => handleAnimalPress(animal.id)}
+      style={({ pressed }) => [
+        styles.cardPressable,
+        columns === 2 && styles.cardDesktop,
+        { opacity: pressed ? 0.88 : 1 },
+      ]}>
+      <AppCard style={styles.animalCard}>
+        <View style={[styles.animalImage, { backgroundColor: surfaceSoft }]}>
+          <Text style={styles.animalEmoji}>{animal.image}</Text>
+        </View>
+        <View style={styles.animalInfo}>
+          <View style={styles.cardTitleRow}>
+            <View style={styles.cardTitleCopy}>
+              <Text style={[styles.animalName, { color: text }]}>{animal.name}</Text>
+              <Text style={[styles.animalDetails, { color: muted }]}>
+                {animal.breed} · {animal.age}
+              </Text>
+            </View>
+            <View style={[styles.favoriteButton, { backgroundColor: Palette.coralSoft }]}>
+              <MaterialIcons name="favorite-border" size={20} color={Palette.coral} />
+            </View>
+          </View>
+          <View style={styles.metaRow}>
+            <View style={[styles.tag, { borderColor: border }]}>
+              <Text style={[styles.tagText, { color: muted }]}>{animal.size}</Text>
+            </View>
+            <View style={[styles.tag, { borderColor: border }]}>
+              <Text style={[styles.tagText, { color: muted }]}>{animal.gender}</Text>
+            </View>
+          </View>
+          <View style={styles.locationRow}>
+            <MaterialIcons name="location-on" size={16} color={primary} />
+            <Text style={[styles.location, { color: muted }]}>{animal.location}</Text>
+          </View>
+          <Text style={[styles.description, { color: muted }]} numberOfLines={2}>
+            {animal.summary}
+          </Text>
+          <View style={styles.detailsLink}>
+            <Text style={[styles.detailsLinkText, { color: primary }]}>Conhecer {animal.name}</Text>
+            <MaterialIcons name="arrow-forward" size={18} color={primary} />
+          </View>
+        </View>
+      </AppCard>
+    </Pressable>
   );
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">Animais para Adoção</ThemedText>
-        <ThemedText type="subtitle">Encontre seu novo melhor amigo</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.filterContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-          <TouchableOpacity style={[styles.filterButton, styles.filterButtonActive]}>
-            <ThemedText style={styles.filterTextActive}>Todos</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>🐕 Cães</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>🐱 Gatos</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>Pequeno</ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <ThemedText style={styles.filterText}>Grande</ThemedText>
-          </TouchableOpacity>
-        </ScrollView>
-      </ThemedView>
-
-      <FlatList
-        data={animals}
-        renderItem={renderAnimalCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.animalsList}
-        showsVerticalScrollIndicator={false}
+    <ScreenContainer>
+      <PageHeader
+        eyebrow="Adoção responsável"
+        title="Animais para adoção"
+        subtitle="Encontre seu novo melhor amigo e conheça a história de cada animal."
       />
-    </ThemedView>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filters}>
+        {filters.map((filter, index) => (
+          <Pressable
+            accessibilityRole="button"
+            key={filter.label}
+            style={[
+              styles.filter,
+              index === 0
+                ? { backgroundColor: primary, borderColor: primary }
+                : { backgroundColor: surfaceSoft, borderColor: border },
+            ]}>
+            <MaterialIcons
+              name={filter.icon}
+              size={18}
+              color={index === 0 ? Palette.white : muted}
+            />
+            <Text style={[styles.filterText, { color: index === 0 ? Palette.white : text }]}>
+              {filter.label}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      <View style={styles.grid}>{animals.map(renderAnimalCard)}</View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-  },
-  filterContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  filterScroll: {
-    flexGrow: 0,
-  },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    marginRight: 8,
-  },
-  filterButtonActive: {
-    backgroundColor: '#007AFF',
-  },
-  filterText: {
-    fontSize: 14,
-  },
-  filterTextActive: {
-    fontSize: 14,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  animalsList: {
-    padding: 20,
-    gap: 16,
-  },
-  animalCard: {
+  filters: { gap: Spacing.sm, paddingRight: Spacing.lg },
+  filter: {
+    minHeight: 42,
     flexDirection: 'row',
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.02)',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+  },
+  filterText: { fontSize: 14, fontWeight: '700' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xl },
+  cardPressable: { width: '100%' },
+  cardDesktop: { width: '48.8%', flexGrow: 1 },
+  animalCard: {
+    padding: Spacing.lg,
+    flexDirection: 'row',
+    gap: Spacing.lg,
+    minHeight: 210,
   },
   animalImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    width: 116,
+    borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  animalEmoji: {
-    fontSize: 32,
-  },
-  animalInfo: {
-    flex: 1,
-    marginLeft: 16,
-    gap: 4,
-  },
-  animalName: {
-    fontSize: 18,
-  },
-  animalDetails: {
-    fontSize: 14,
-    opacity: 0.7,
-  },
-  animalLocation: {
-    fontSize: 12,
-    opacity: 0.6,
-  },
-  animalDescription: {
-    fontSize: 14,
-    marginTop: 4,
-    opacity: 0.8,
-  },
+  animalEmoji: { fontSize: 48 },
+  animalInfo: { flex: 1, gap: Spacing.md },
+  cardTitleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
+  cardTitleCopy: { flex: 1, gap: 2 },
+  animalName: { fontSize: 21, lineHeight: 26, fontWeight: '800' },
+  animalDetails: { fontSize: 14 },
   favoriteButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
   },
-  favoriteIcon: {
-    fontSize: 18,
-    color: '#FF3B30',
-  },
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  tag: { borderWidth: 1, borderRadius: Radius.pill, paddingHorizontal: Spacing.md, paddingVertical: 4 },
+  tagText: { fontSize: 12, fontWeight: '700' },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
+  location: { fontSize: 13 },
+  description: { fontSize: 14, lineHeight: 20 },
+  detailsLink: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: 'auto' },
+  detailsLinkText: { fontSize: 14, fontWeight: '800' },
 });

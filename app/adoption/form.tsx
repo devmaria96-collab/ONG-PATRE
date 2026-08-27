@@ -1,30 +1,47 @@
-import { StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
+import { AppButton } from '@/components/ui/AppButton';
+import { FormField } from '@/components/ui/FormField';
+import { AppCard, PageHeader, ScreenContainer } from '@/components/ui/ScreenLayout';
+import { Palette, Radius, Spacing } from '@/constants/Theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+const initialForm = {
+  name: '',
+  email: '',
+  phone: '',
+  cpf: '',
+  address: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  houseType: '',
+  hasYard: false,
+  hasOtherPets: false,
+  petExperience: '',
+  reason: '',
+  availability: '',
+  agreeTerms: false,
+};
 
 export default function AdoptionFormScreen() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    cpf: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    houseType: '',
-    hasYard: false,
-    hasOtherPets: false,
-    petExperience: '',
-    reason: '',
-    availability: '',
-    agreeTerms: false,
-  });
+  const { width } = useWindowDimensions();
+  const [formData, setFormData] = useState(initialForm);
+  const text = useThemeColor({}, 'text');
+  const muted = useThemeColor({}, 'muted');
+  const primary = useThemeColor({}, 'primary');
+  const surfaceSoft = useThemeColor({}, 'surfaceSoft');
+  const border = useThemeColor({}, 'border');
+  const desktop = width >= 760;
+
+  const setField = <K extends keyof typeof formData>(field: K, value: (typeof formData)[K]) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+  };
 
   const handleSubmit = () => {
-    // Validação básica
     if (!formData.name || !formData.email || !formData.phone) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
       return;
@@ -35,312 +52,312 @@ export default function AdoptionFormScreen() {
       return;
     }
 
-    // Simular envio do formulário
     Alert.alert(
-      'Sucesso!', 
+      'Sucesso!',
       'Seu pedido de adoção foi enviado com sucesso! Entraremos em contato em breve.',
-      [
-        {
-          text: 'OK',
-          onPress: () => router.push('/(tabs)')
-        }
-      ]
+      [{ text: 'OK', onPress: () => router.push('/(tabs)') }]
     );
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ThemedText style={styles.backButtonText}>← Voltar</ThemedText>
-        </TouchableOpacity>
-        <ThemedText type="title">Formulário de Adoção</ThemedText>
-        <ThemedText type="subtitle">Preencha os dados para adotar seu novo amigo</ThemedText>
-      </ThemedView>
+    <ScreenContainer maxWidth={940} keyboardShouldPersistTaps="handled">
+      <PageHeader
+        back
+        eyebrow="Adoção responsável"
+        title="Formulário de adoção"
+        subtitle="Preencha os dados para adotar seu novo amigo."
+      />
 
-      <ThemedView style={styles.content}>
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Dados Pessoais</ThemedText>
-          
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Nome Completo *</ThemedText>
-            <TextInput
-              style={styles.input}
+      <FormSection
+        icon="person-outline"
+        title="Dados pessoais"
+        subtitle="Informações para entrarmos em contato com você."
+        text={text}
+        muted={muted}>
+        <View style={[styles.fieldGrid, desktop && styles.fieldGridDesktop]}>
+          <View style={styles.fullField}>
+            <FormField
+              label="Nome completo *"
+              icon="person-outline"
               value={formData.name}
-              onChangeText={(text) => setFormData({...formData, name: text})}
+              onChangeText={(value) => setField('name', value)}
               placeholder="Digite seu nome completo"
+              autoCapitalize="words"
             />
-          </ThemedView>
-
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>E-mail *</ThemedText>
-            <TextInput
-              style={styles.input}
+          </View>
+          <View style={styles.halfField}>
+            <FormField
+              label="E-mail *"
+              icon="mail-outline"
               value={formData.email}
-              onChangeText={(text) => setFormData({...formData, email: text})}
+              onChangeText={(value) => setField('email', value)}
               placeholder="Digite seu e-mail"
               keyboardType="email-address"
+              autoCapitalize="none"
             />
-          </ThemedView>
-
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Telefone *</ThemedText>
-            <TextInput
-              style={styles.input}
+          </View>
+          <View style={styles.halfField}>
+            <FormField
+              label="Telefone *"
+              icon="phone"
               value={formData.phone}
-              onChangeText={(text) => setFormData({...formData, phone: text})}
+              onChangeText={(value) => setField('phone', value)}
               placeholder="(11) 99999-9999"
               keyboardType="phone-pad"
             />
-          </ThemedView>
-
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>CPF</ThemedText>
-            <TextInput
-              style={styles.input}
+          </View>
+          <View style={styles.halfField}>
+            <FormField
+              label="CPF"
+              icon="badge"
               value={formData.cpf}
-              onChangeText={(text) => setFormData({...formData, cpf: text})}
+              onChangeText={(value) => setField('cpf', value)}
               placeholder="000.000.000-00"
               keyboardType="numeric"
             />
-          </ThemedView>
-        </ThemedView>
+          </View>
+        </View>
+      </FormSection>
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Endereço</ThemedText>
-          
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Endereço Completo</ThemedText>
-            <TextInput
-              style={styles.input}
+      <FormSection
+        icon="location-on"
+        title="Endereço"
+        subtitle="Conte onde será o novo lar do animal."
+        text={text}
+        muted={muted}>
+        <View style={[styles.fieldGrid, desktop && styles.fieldGridDesktop]}>
+          <View style={styles.fullField}>
+            <FormField
+              label="Endereço completo"
+              icon="home"
               value={formData.address}
-              onChangeText={(text) => setFormData({...formData, address: text})}
+              onChangeText={(value) => setField('address', value)}
               placeholder="Rua, número, complemento"
             />
-          </ThemedView>
-
-          <ThemedView style={styles.row}>
-            <ThemedView style={[styles.inputGroup, styles.flex1]}>
-              <ThemedText style={styles.label}>Cidade</ThemedText>
-              <TextInput
-                style={styles.input}
-                value={formData.city}
-                onChangeText={(text) => setFormData({...formData, city: text})}
-                placeholder="Cidade"
-              />
-            </ThemedView>
-
-            <ThemedView style={[styles.inputGroup, styles.flex1]}>
-              <ThemedText style={styles.label}>Estado</ThemedText>
-              <TextInput
-                style={styles.input}
-                value={formData.state}
-                onChangeText={(text) => setFormData({...formData, state: text})}
-                placeholder="SP"
-              />
-            </ThemedView>
-          </ThemedView>
-        </ThemedView>
-
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Informações sobre Moradia</ThemedText>
-          
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Tipo de Moradia</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={formData.houseType}
-              onChangeText={(text) => setFormData({...formData, houseType: text})}
-              placeholder="Casa, apartamento, etc."
+          </View>
+          <View style={styles.halfField}>
+            <FormField
+              label="Cidade"
+              value={formData.city}
+              onChangeText={(value) => setField('city', value)}
+              placeholder="Cidade"
             />
-          </ThemedView>
-
-          <TouchableOpacity 
-            style={styles.checkboxRow}
-            onPress={() => setFormData({...formData, hasYard: !formData.hasYard})}
-          >
-            <ThemedView style={[styles.checkbox, formData.hasYard && styles.checkboxChecked]}>
-              {formData.hasYard && <ThemedText style={styles.checkmark}>✓</ThemedText>}
-            </ThemedView>
-            <ThemedText style={styles.checkboxLabel}>Possui quintal ou área externa</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.checkboxRow}
-            onPress={() => setFormData({...formData, hasOtherPets: !formData.hasOtherPets})}
-          >
-            <ThemedView style={[styles.checkbox, formData.hasOtherPets && styles.checkboxChecked]}>
-              {formData.hasOtherPets && <ThemedText style={styles.checkmark}>✓</ThemedText>}
-            </ThemedView>
-            <ThemedText style={styles.checkboxLabel}>Possui outros animais de estimação</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Experiência com Animais</ThemedText>
-          
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Experiência Anterior</ThemedText>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={formData.petExperience}
-              onChangeText={(text) => setFormData({...formData, petExperience: text})}
-              placeholder="Conte sobre sua experiência com animais de estimação"
-              multiline
-              numberOfLines={3}
+          </View>
+          <View style={styles.quarterField}>
+            <FormField
+              label="Estado"
+              value={formData.state}
+              onChangeText={(value) => setField('state', value)}
+              placeholder="SP"
+              autoCapitalize="characters"
+              maxLength={2}
             />
-          </ThemedView>
-
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Por que deseja adotar?</ThemedText>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={formData.reason}
-              onChangeText={(text) => setFormData({...formData, reason: text})}
-              placeholder="Conte-nos o motivo da adoção"
-              multiline
-              numberOfLines={3}
+          </View>
+          <View style={styles.quarterField}>
+            <FormField
+              label="CEP"
+              value={formData.zipCode}
+              onChangeText={(value) => setField('zipCode', value)}
+              placeholder="00000-000"
+              keyboardType="numeric"
             />
-          </ThemedView>
-        </ThemedView>
+          </View>
+        </View>
+      </FormSection>
 
-        <ThemedView style={styles.section}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>Termos de Adoção</ThemedText>
-          
-          <ThemedView style={styles.termsBox}>
-            <ThemedText style={styles.termsText}>
-              • Comprometo-me a cuidar do animal com amor e responsabilidade{'\n'}
-              • Fornecerei alimentação adequada, cuidados veterinários e carinho{'\n'}
-              • Não abandonarei o animal em hipótese alguma{'\n'}
-              • Permitirei visitas da ONG para acompanhamento{'\n'}
-              • Comunicarei qualquer problema ou necessidade de devolução
-            </ThemedText>
-          </ThemedView>
+      <FormSection
+        icon="cottage"
+        title="Informações sobre moradia"
+        subtitle="Ajude a equipe a entender o ambiente do animal."
+        text={text}
+        muted={muted}>
+        <FormField
+          label="Tipo de moradia"
+          icon="apartment"
+          value={formData.houseType}
+          onChangeText={(value) => setField('houseType', value)}
+          placeholder="Casa, apartamento, etc."
+        />
+        <View style={styles.checkList}>
+          <Checkbox
+            checked={formData.hasYard}
+            label="Possui quintal ou área externa"
+            onPress={() => setField('hasYard', !formData.hasYard)}
+            primary={primary}
+            border={border}
+            text={text}
+          />
+          <Checkbox
+            checked={formData.hasOtherPets}
+            label="Possui outros animais de estimação"
+            onPress={() => setField('hasOtherPets', !formData.hasOtherPets)}
+            primary={primary}
+            border={border}
+            text={text}
+          />
+        </View>
+      </FormSection>
 
-          <TouchableOpacity 
-            style={styles.checkboxRow}
-            onPress={() => setFormData({...formData, agreeTerms: !formData.agreeTerms})}
-          >
-            <ThemedView style={[styles.checkbox, formData.agreeTerms && styles.checkboxChecked]}>
-              {formData.agreeTerms && <ThemedText style={styles.checkmark}>✓</ThemedText>}
-            </ThemedView>
-            <ThemedText style={styles.checkboxLabel}>Concordo com os termos de adoção *</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+      <FormSection
+        icon="pets"
+        title="Experiência com animais"
+        subtitle="Compartilhe sua motivação e sua rotina."
+        text={text}
+        muted={muted}>
+        <FormField
+          label="Experiência anterior"
+          value={formData.petExperience}
+          onChangeText={(value) => setField('petExperience', value)}
+          placeholder="Conte sobre sua experiência com animais de estimação"
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+          style={styles.textArea}
+        />
+        <FormField
+          label="Por que deseja adotar?"
+          value={formData.reason}
+          onChangeText={(value) => setField('reason', value)}
+          placeholder="Conte-nos o motivo da adoção"
+          multiline
+          numberOfLines={4}
+          textAlignVertical="top"
+          style={styles.textArea}
+        />
+        <FormField
+          label="Disponibilidade"
+          icon="schedule"
+          value={formData.availability}
+          onChangeText={(value) => setField('availability', value)}
+          placeholder="Informe sua disponibilidade para entrevista e visita"
+        />
+      </FormSection>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <ThemedText style={styles.submitButtonText}>Enviar Pedido de Adoção</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-    </ScrollView>
+      <FormSection
+        icon="verified-user"
+        title="Termos de adoção"
+        subtitle="Leia os compromissos de uma adoção responsável."
+        text={text}
+        muted={muted}>
+        <View style={[styles.termsBox, { backgroundColor: surfaceSoft, borderLeftColor: primary }]}>
+          <Text style={[styles.termsText, { color: muted }]}>
+            • Comprometo-me a cuidar do animal com amor e responsabilidade{'\n'}
+            • Fornecerei alimentação adequada, cuidados veterinários e carinho{'\n'}
+            • Não abandonarei o animal em hipótese alguma{'\n'}
+            • Permitirei visitas da ONG para acompanhamento{'\n'}
+            • Comunicarei qualquer problema ou necessidade de devolução
+          </Text>
+        </View>
+        <Checkbox
+          checked={formData.agreeTerms}
+          label="Concordo com os termos de adoção *"
+          onPress={() => setField('agreeTerms', !formData.agreeTerms)}
+          primary={primary}
+          border={border}
+          text={text}
+        />
+      </FormSection>
+
+      <AppButton label="Enviar pedido de adoção" icon="send" onPress={handleSubmit} />
+    </ScreenContainer>
+  );
+}
+
+function FormSection({
+  icon,
+  title,
+  subtitle,
+  text,
+  muted,
+  children,
+}: {
+  icon: keyof typeof MaterialIcons.glyphMap;
+  title: string;
+  subtitle: string;
+  text: string;
+  muted: string;
+  children: ReactNode;
+}) {
+  return (
+    <AppCard style={styles.section}>
+      <View style={styles.sectionHeading}>
+        <View style={styles.sectionIcon}>
+          <MaterialIcons name={icon} size={23} color={Palette.forest} />
+        </View>
+        <View style={styles.sectionCopy}>
+          <Text style={[styles.sectionTitle, { color: text }]}>{title}</Text>
+          <Text style={[styles.sectionSubtitle, { color: muted }]}>{subtitle}</Text>
+        </View>
+      </View>
+      {children}
+    </AppCard>
+  );
+}
+
+function Checkbox({
+  checked,
+  label,
+  onPress,
+  primary,
+  border,
+  text,
+}: {
+  checked: boolean;
+  label: string;
+  onPress: () => void;
+  primary: string;
+  border: string;
+  text: string;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked }}
+      onPress={onPress}
+      style={styles.checkboxRow}>
+      <View
+        style={[
+          styles.checkbox,
+          { borderColor: checked ? primary : border, backgroundColor: checked ? primary : 'transparent' },
+        ]}>
+        {checked && <MaterialIcons name="check" size={18} color={Palette.white} />}
+      </View>
+      <Text style={[styles.checkboxLabel, { color: text }]}>{label}</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    gap: 8,
-  },
-  backButton: {
-    alignSelf: 'flex-start',
-    padding: 8,
-    marginBottom: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#007AFF',
-  },
-  content: {
-    padding: 20,
-    gap: 24,
-  },
-  section: {
-    gap: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.02)',
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  flex1: {
-    flex: 1,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 8,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    borderRadius: 4,
+  section: { padding: Spacing.xl, gap: Spacing.xl },
+  sectionHeading: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
+  sectionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
+    backgroundColor: Palette.sageLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkboxChecked: {
-    backgroundColor: '#007AFF',
-  },
-  checkmark: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  checkboxLabel: {
-    flex: 1,
-    fontSize: 16,
-  },
-  termsBox: {
-    padding: 16,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0, 122, 255, 0.05)',
-    borderLeftWidth: 4,
-    borderLeftColor: '#007AFF',
-  },
-  termsText: {
-    fontSize: 14,
-    lineHeight: 20,
-    opacity: 0.8,
-  },
-  submitButton: {
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#34C759',
+  sectionCopy: { flex: 1, gap: Spacing.xs },
+  sectionTitle: { fontSize: 20, lineHeight: 25, fontWeight: '800' },
+  sectionSubtitle: { fontSize: 14, lineHeight: 20 },
+  fieldGrid: { gap: Spacing.lg },
+  fieldGridDesktop: { flexDirection: 'row', flexWrap: 'wrap' },
+  fullField: { width: '100%' },
+  halfField: { flexGrow: 1, flexBasis: 300 },
+  quarterField: { flexGrow: 1, flexBasis: 150 },
+  textArea: { minHeight: 100, paddingTop: Spacing.md },
+  checkList: { gap: Spacing.sm },
+  checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, minHeight: 44 },
+  checkbox: {
+    width: 25,
+    height: 25,
+    borderWidth: 2,
+    borderRadius: 7,
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 40,
+    justifyContent: 'center',
   },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
+  checkboxLabel: { flex: 1, fontSize: 15, lineHeight: 21 },
+  termsBox: { padding: Spacing.lg, borderRadius: Radius.md, borderLeftWidth: 4 },
+  termsText: { fontSize: 14, lineHeight: 23 },
 });

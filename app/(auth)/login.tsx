@@ -1,392 +1,310 @@
-import { StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
+import { AppButton } from '@/components/ui/AppButton';
+import { BrandMark } from '@/components/ui/BrandMark';
+import { FormField } from '@/components/ui/FormField';
+import { AppCard, ScreenContainer } from '@/components/ui/ScreenLayout';
+import { Palette, Radius, Spacing, Typography } from '@/constants/Theme';
+import { useAuth } from '@/contexts/AuthContext';
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+type FormErrors = Partial<Record<'name' | 'email' | 'password' | 'confirmPassword', string>>;
 
 export default function LoginScreen() {
+  const { width } = useWindowDimensions();
+  const { signIn } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
+  const text = useThemeColor({}, 'text');
+  const muted = useThemeColor({}, 'muted');
+  const primary = useThemeColor({}, 'primary');
+  const surfaceSoft = useThemeColor({}, 'surfaceSoft');
+  const border = useThemeColor({}, 'border');
 
-  const handleSubmit = () => {
-    if (!formData.email || !formData.password) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
-      return;
+  const updateField = (field: keyof typeof formData, value: string) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const validate = () => {
+    const nextErrors: FormErrors = {};
+    const normalizedEmail = formData.email.trim();
+
+    if (!normalizedEmail) nextErrors.email = 'Informe seu e-mail.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      nextErrors.email = 'Digite um e-mail válido.';
     }
+    if (!formData.password) nextErrors.password = 'Informe sua senha.';
 
     if (!isLogin) {
-      if (!formData.name) {
-        Alert.alert('Erro', 'Por favor, preencha seu nome.');
-        return;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        Alert.alert('Erro', 'As senhas não coincidem.');
-        return;
+      if (!formData.name.trim()) nextErrors.name = 'Informe seu nome completo.';
+      if (!formData.confirmPassword) nextErrors.confirmPassword = 'Confirme sua senha.';
+      else if (formData.password !== formData.confirmPassword) {
+        nextErrors.confirmPassword = 'As senhas não coincidem.';
       }
     }
 
-    // Simular login/cadastro
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const completeAuthentication = () => {
+    // TODO: substituir a simulação pela autenticação real.
+    signIn();
+    router.replace('/(tabs)');
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+    setLoading(true);
     setTimeout(() => {
-      Alert.alert(
-        'Bem-vindo ao PATRE!',
-        isLogin ? 'Login realizado com sucesso!' : 'Cadastro realizado com sucesso! Agora você faz parte da nossa família.',
-        [
-          {
-            text: 'Começar',
-            onPress: () => router.push('/(tabs)')
-          }
-        ]
-      );
-    }, 1000);
+      setLoading(false);
+      completeAuthentication();
+    }, 700);
   };
 
   const handleSocialLogin = (provider: string) => {
     Alert.alert(
-      'Login Social',
-      `Login com ${provider} será implementado em breve!`,
-      [
-        {
-          text: 'OK',
-          onPress: () => router.push('/(tabs)')
-        }
-      ]
+      'Login social simulado',
+      `A integração com ${provider} será adicionada em breve. Você entrará no modo de demonstração.`,
+      [{ text: 'Continuar', onPress: completeAuthentication }]
     );
   };
 
+  const changeMode = (loginMode: boolean) => {
+    setIsLogin(loginMode);
+    setErrors({});
+  };
+
+  const desktop = width >= 900;
+
   return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedView style={styles.logoContainer}>
-          <ThemedText style={styles.logoIcon}>🐾</ThemedText>
-        </ThemedView>
-        <ThemedText type="title" style={styles.brandName}>PATRE</ThemedText>
-        <ThemedText style={styles.tagline}>Proteção Animal & Resgate</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Conectando corações e transformando vidas desde 2015
-        </ThemedText>
-      </ThemedView>
+    <ScreenContainer
+      maxWidth={1180}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={[styles.page, desktop && styles.pageDesktop]}>
+      <View style={[styles.hero, desktop && styles.heroDesktop]}>
+        <BrandMark />
+        <View style={styles.heroCopy}>
+          <Text style={styles.eyebrow}>Adoção responsável</Text>
+          <Text style={[styles.heroTitle, { color: text }, desktop && styles.heroTitleDesktop]}>
+            Conectando corações e transformando vidas.
+          </Text>
+          <Text style={[styles.heroText, { color: muted }]}>
+            Entre para conhecer animais que esperam por um lar, acompanhar pedidos e apoiar a
+            missão da PATRE.
+          </Text>
+        </View>
+        <View style={styles.heroHighlights}>
+          {[
+            ['pets', 'Adoção com cuidado'],
+            ['volunteer-activism', 'Rede de proteção'],
+            ['verified', 'Acompanhamento responsável'],
+          ].map(([icon, label]) => (
+            <View key={label} style={styles.highlight}>
+              <MaterialIcons name={icon as keyof typeof MaterialIcons.glyphMap} size={20} color={Palette.forest} />
+              <Text style={styles.highlightText}>{label}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
 
-      <ThemedView style={styles.content}>
-        <ThemedView style={styles.welcomeMessage}>
-          <ThemedText style={styles.welcomeText}>
-            {isLogin ? 'Bem-vindo de volta!' : 'Junte-se à nossa missão!'}
-          </ThemedText>
-          <ThemedText style={styles.welcomeSubtext}>
-            {isLogin 
-              ? 'Entre na sua conta para continuar ajudando os animais' 
-              : 'Cadastre-se e faça parte da família PATRE'
-            }
-          </ThemedText>
-        </ThemedView>
+      <AppCard style={[styles.card, desktop && styles.cardDesktop]}>
+        <View style={styles.heading}>
+          <Text style={[styles.title, { color: text }]}>
+            {isLogin ? 'Bem-vindo de volta' : 'Junte-se à nossa missão'}
+          </Text>
+          <Text style={[styles.subtitle, { color: muted }]}>
+            {isLogin
+              ? 'Acesse sua conta para continuar ajudando os animais.'
+              : 'Crie sua conta e faça parte da família PATRE.'}
+          </Text>
+        </View>
 
-        <ThemedView style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, isLogin && styles.activeTab]}
-            onPress={() => setIsLogin(true)}
-          >
-            <ThemedText style={[styles.tabText, isLogin && styles.activeTabText]}>
-              Entrar
-            </ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, !isLogin && styles.activeTab]}
-            onPress={() => setIsLogin(false)}
-          >
-            <ThemedText style={[styles.tabText, !isLogin && styles.activeTabText]}>
-              Cadastrar
-            </ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+        <View style={[styles.tabs, { backgroundColor: surfaceSoft }]}>
+          {[
+            { label: 'Entrar', value: true },
+            { label: 'Cadastrar', value: false },
+          ].map((tab) => {
+            const active = isLogin === tab.value;
+            return (
+              <Pressable
+                accessibilityRole="tab"
+                accessibilityState={{ selected: active }}
+                key={tab.label}
+                onPress={() => changeMode(tab.value)}
+                style={[styles.tab, active && { backgroundColor: primary }]}>
+                <Text style={[styles.tabText, { color: active ? Palette.white : muted }]}>
+                  {tab.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-        <ThemedView style={styles.form}>
+        <View style={styles.form}>
           {!isLogin && (
-            <ThemedView style={styles.inputGroup}>
-              <ThemedText style={styles.label}>Nome Completo</ThemedText>
-              <TextInput
-                style={styles.input}
-                value={formData.name}
-                onChangeText={(text) => setFormData({...formData, name: text})}
-                placeholder="Como você gostaria de ser chamado?"
-                autoCapitalize="words"
-              />
-            </ThemedView>
+            <FormField
+              label="Nome completo"
+              icon="person-outline"
+              value={formData.name}
+              onChangeText={(value) => updateField('name', value)}
+              placeholder="Como você gostaria de ser chamado?"
+              autoCapitalize="words"
+              error={errors.name}
+            />
           )}
-
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>E-mail</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={formData.email}
-              onChangeText={(text) => setFormData({...formData, email: text})}
-              placeholder="seu.email@exemplo.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </ThemedView>
-
-          <ThemedView style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Senha</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={formData.password}
-              onChangeText={(text) => setFormData({...formData, password: text})}
-              placeholder="Mínimo 6 caracteres"
-              secureTextEntry
-            />
-          </ThemedView>
-
+          <FormField
+            label="E-mail"
+            icon="mail-outline"
+            value={formData.email}
+            onChangeText={(value) => updateField('email', value)}
+            placeholder="seu.email@exemplo.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            error={errors.email}
+          />
+          <FormField
+            label="Senha"
+            icon="lock-outline"
+            value={formData.password}
+            onChangeText={(value) => updateField('password', value)}
+            placeholder="Digite sua senha"
+            passwordToggle
+            error={errors.password}
+          />
           {!isLogin && (
-            <ThemedView style={styles.inputGroup}>
-              <ThemedText style={styles.label}>Confirmar Senha</ThemedText>
-              <TextInput
-                style={styles.input}
-                value={formData.confirmPassword}
-                onChangeText={(text) => setFormData({...formData, confirmPassword: text})}
-                placeholder="Digite a senha novamente"
-                secureTextEntry
-              />
-            </ThemedView>
+            <FormField
+              label="Confirmar senha"
+              icon="lock-outline"
+              value={formData.confirmPassword}
+              onChangeText={(value) => updateField('confirmPassword', value)}
+              placeholder="Digite a senha novamente"
+              passwordToggle
+              error={errors.confirmPassword}
+            />
           )}
-
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <ThemedText style={styles.submitButtonText}>
-              {isLogin ? '🐕 Entrar no PATRE' : '❤️ Criar Conta no PATRE'}
-            </ThemedText>
-          </TouchableOpacity>
 
           {isLogin && (
-            <TouchableOpacity style={styles.forgotPassword}>
-              <ThemedText style={styles.forgotPasswordText}>
-                Esqueceu sua senha?
-              </ThemedText>
-            </TouchableOpacity>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() =>
+                Alert.alert(
+                  'Recuperação de senha',
+                  'Em breve enviaremos instruções de recuperação para o e-mail informado.'
+                )
+              }
+              style={styles.forgot}>
+              <Text style={[styles.link, { color: primary }]}>Esqueceu sua senha?</Text>
+            </Pressable>
           )}
-        </ThemedView>
 
-        <ThemedView style={styles.divider}>
-          <ThemedView style={styles.dividerLine} />
-          <ThemedText style={styles.dividerText}>ou continue com</ThemedText>
-          <ThemedView style={styles.dividerLine} />
-        </ThemedView>
+          <AppButton
+            label={isLogin ? 'Entrar' : 'Criar conta'}
+            icon={isLogin ? 'login' : 'person-add-alt-1'}
+            onPress={handleSubmit}
+            loading={loading}
+          />
+        </View>
 
-        <ThemedView style={styles.socialButtons}>
-          <TouchableOpacity
-            style={styles.socialButton}
+        <View style={styles.divider}>
+          <View style={[styles.line, { backgroundColor: border }]} />
+          <Text style={[styles.dividerText, { color: muted }]}>ou continue com</Text>
+          <View style={[styles.line, { backgroundColor: border }]} />
+        </View>
+
+        <View style={[styles.social, width < 430 && styles.socialMobile]}>
+          <AppButton
+            label="Google"
+            icon="language"
+            variant="secondary"
             onPress={() => handleSocialLogin('Google')}
-          >
-            <ThemedText style={styles.socialButtonText}>🔍 Google</ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.socialButton}
+            fullWidth={width < 430}
+            style={width >= 430 ? styles.socialButton : undefined}
+          />
+          <AppButton
+            label="Apple"
+            icon="apple"
+            variant="secondary"
             onPress={() => handleSocialLogin('Apple')}
-          >
-            <ThemedText style={styles.socialButtonText}>🍎 Apple</ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+            fullWidth={width < 430}
+            style={width >= 430 ? styles.socialButton : undefined}
+          />
+        </View>
 
-        <ThemedView style={styles.footer}>
-          <ThemedText style={styles.footerText}>
-            Ao se cadastrar, você concorda em ajudar a transformar vidas e aceita nossos{' '}
-            <ThemedText style={styles.link}>Termos de Uso</ThemedText> e{' '}
-            <ThemedText style={styles.link}>Política de Privacidade</ThemedText>
-          </ThemedText>
-        </ThemedView>
-      </ThemedView>
-    </ScrollView>
+        <Text style={[styles.footer, { color: muted }]}>
+          Ao se cadastrar, você concorda em ajudar a transformar vidas e aceita nossos Termos de
+          Uso e Política de Privacidade.
+        </Text>
+      </AppCard>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  page: { flexGrow: 1, justifyContent: 'center', paddingVertical: Spacing.xl },
+  pageDesktop: { flexDirection: 'row', alignItems: 'stretch', gap: Spacing.xxxl },
+  hero: {
     flex: 1,
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: 80,
-    paddingBottom: 40,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(0, 122, 255, 0.05)',
-  },
-  logoContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
+    minWidth: 0,
     justifyContent: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    gap: Spacing.xxl,
+    padding: Spacing.lg,
   },
-  logoIcon: {
-    fontSize: 48,
-    color: 'white',
+  heroDesktop: { padding: Spacing.xxl, maxWidth: 540 },
+  heroCopy: { gap: Spacing.lg },
+  eyebrow: {
+    color: Palette.coral,
+    fontSize: Typography.caption,
+    fontWeight: '800',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
-  brandName: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#007AFF',
-    marginBottom: 8,
-    letterSpacing: 2,
+  heroTitle: {
+    fontSize: 34,
+    lineHeight: 41,
+    fontWeight: '900',
+    letterSpacing: -1,
   },
-  tagline: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    opacity: 0.7,
-    fontStyle: 'italic',
-  },
-  content: {
-    paddingHorizontal: 20,
-    gap: 24,
-  },
-  welcomeMessage: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  welcomeSubtext: {
-    fontSize: 16,
-    textAlign: 'center',
-    opacity: 0.7,
-    lineHeight: 22,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: 12,
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  activeTab: {
-    backgroundColor: '#007AFF',
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  form: {
-    gap: 16,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#007AFF',
-  },
-  input: {
-    borderWidth: 2,
-    borderColor: 'rgba(0, 122, 255, 0.2)',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    backgroundColor: 'rgba(0, 122, 255, 0.05)',
-  },
-  submitButton: {
-    backgroundColor: '#007AFF',
-    padding: 18,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 8,
-    shadowColor: '#007AFF',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  forgotPassword: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  forgotPasswordText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  divider: {
+  heroTitleDesktop: { fontSize: 48, lineHeight: 56 },
+  heroText: { fontSize: Typography.body, lineHeight: 26, maxWidth: 500 },
+  heroHighlights: { gap: Spacing.md },
+  highlight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    backgroundColor: Palette.sageLight,
   },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  dividerText: {
-    fontSize: 14,
-    opacity: 0.6,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  socialButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.02)',
-  },
-  socialButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  footer: {
-    paddingVertical: 20,
-    paddingBottom: 40,
-  },
-  footerText: {
-    fontSize: 12,
-    textAlign: 'center',
-    lineHeight: 18,
-    opacity: 0.7,
-  },
-  link: {
-    color: '#007AFF',
-    fontWeight: '600',
-  },
+  highlightText: { color: Palette.forestDark, fontWeight: '700', fontSize: 14 },
+  card: { padding: Spacing.xl, gap: Spacing.xl, width: '100%' },
+  cardDesktop: { flex: 1, maxWidth: 520, alignSelf: 'center', padding: Spacing.xxl },
+  heading: { gap: Spacing.sm },
+  title: { fontSize: 28, lineHeight: 34, fontWeight: '800' },
+  subtitle: { fontSize: 15, lineHeight: 22 },
+  tabs: { flexDirection: 'row', borderRadius: Radius.md, padding: Spacing.xs },
+  tab: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: Radius.sm },
+  tabText: { fontSize: 15, fontWeight: '800' },
+  form: { gap: Spacing.lg },
+  forgot: { alignSelf: 'flex-end', paddingVertical: Spacing.xs },
+  link: { fontSize: 14, fontWeight: '700' },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  line: { flex: 1, height: 1 },
+  dividerText: { fontSize: 13 },
+  social: { flexDirection: 'row', gap: Spacing.md },
+  socialMobile: { flexDirection: 'column' },
+  socialButton: { flex: 1 },
+  footer: { fontSize: 12, lineHeight: 18, textAlign: 'center' },
 });
